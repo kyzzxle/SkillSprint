@@ -1,0 +1,36 @@
+---
+import GameLayout from '../../layouts/GameLayout.astro';
+import GeographyQuiz from '../../games/geography/GeographyQuiz';
+import { COUNTRIES } from '../../data/countries';
+const faqs = [
+  { q: 'How many countries are included?', a: `The quiz currently covers ${COUNTRIES.length} countries from every inhabited continent. Easy mode uses the best-known countries; Hard mode includes them all.` },
+  { q: 'How do you handle countries with more than one capital?', a: 'Where a country has several official capitals (such as South Africa or Bolivia) the explanation says so. Countries whose capital is disputed or in the middle of an official move are left out of capital questions.' },
+  { q: 'Which continent is Russia or Turkey in?', a: 'Countries that span two continents are excluded from “which continent” questions to keep every answer unambiguous.' },
+];
+---
+<GameLayout
+  gamePageId="geography"
+  title="Geography Quiz – Flags, Capitals, Maps & Continents"
+  description="Free world geography quiz. Identify countries by flag and on a world map, name capital cities and continents. Easy to hard, timed or 10 questions."
+  heading="Geography Challenge"
+  lead="Test yourself on flags, capitals, map locations and continents — or focus on one with the dedicated quizzes below."
+  faqs={faqs}
+>
+  <GeographyQuiz client:load />
+  <Fragment slot="guide">
+    <h2>How to get better at geography quizzes</h2>
+    <ul>
+      <li><strong>Learn by region.</strong> Master one continent at a time instead of the whole world at once.</li>
+      <li><strong>Notice flag families.</strong> Many flags share colours for historical reasons — pan-African red, gold and green; the Nordic cross; the pan-Slavic white, blue and red. Learn the differences within each family.</li>
+      <li><strong>Connect capitals to stories.</strong> Several countries moved their capitals to planned cities — Brasília, Canberra, Abuja and Astana among them — which is why the largest city is often not the capital.</li>
+      <li><strong>Use the map.</strong> Knowing a country’s neighbours makes it far easier to pick it out.</li>
+    </ul>
+    <h2>Quiz modes</h2>
+    <ul>
+      <li><a href="/geography/flags/">Flag quiz</a> — name the country from its flag.</li>
+      <li><a href="/geography/capitals/">Capital cities quiz</a> — match countries and capitals in both directions.</li>
+      <li><a href="/geography/map/">World map quiz</a> — identify the highlighted country.</li>
+      <li><strong>Continents</strong> — choose which continent a country belongs to.</li>
+    </ul>
+  </Fragment>
+</GameLayout>

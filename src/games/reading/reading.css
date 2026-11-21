@@ -1,0 +1,8 @@
+.reading-ready { text-align: center; display: grid; gap: 0.5rem; justify-items: center; padding: 2rem 0; }
+.reading-ready h2 { margin: 0.5rem 0 0; }
+.reading { display: grid; gap: 1.25rem; }
+.reading-bar { position: sticky; top: 72px; z-index: 5; background: var(--surface); padding: 0.5rem 0; border-bottom: 1px solid var(--border); }
+.passage { max-width: 68ch; margin: 0 auto; font-size: clamp(1.05rem, 2vw, 1.2rem); line-height: 1.75; color: var(--text); font-family: Georgia, 'Iowan Old Style', 'Times New Roman', serif; }
+.passage h2 { font-family: var(--font-display); }
+.passage p { margin: 0 0 1.1em; }
+.reading-q { font-size: 0.8em; font-family: var(--font-sans); line-height: 1.4; display: block; }

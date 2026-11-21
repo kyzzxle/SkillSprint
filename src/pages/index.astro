@@ -1,0 +1,120 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import AdSlot from '../components/AdSlot.astro';
+import { DailyCard, Highlights, RecentlyPlayed } from '../components/HomeWidgets';
+import { CATEGORIES, GAMES, categoryById, gamesInCategory } from '../data/catalog';
+
+const featured = GAMES.filter((g) => g.featured);
+---
+<BaseLayout
+  title="SkillSprint – Free Brain & Skill Training Games"
+  rawTitle
+  description="Train your typing speed, reaction time, memory, mental math, vocabulary, geography, keyboard shortcuts, logic, colour vision and reading speed. Free, no sign-up."
+>
+  <section class="hero">
+    <div class="container">
+      <p class="eyebrow">Free · No account · 10 skills</p>
+      <h1>Train Your Mind. <span class="accent">Challenge Your Limits.</span></h1>
+      <p class="lead">
+        SkillSprint brings typing tests, reaction challenges, memory games, mental maths and six more skill trainers together in one place.
+        Pick a game and start in seconds — your personal bests are saved right in your browser.
+      </p>
+      <div class="btn-row" style="margin-top:1.5rem">
+        <a class="btn btn-primary btn-lg" href="/typing/"><Icon name="play" /> Start a typing test</a>
+        <a class="btn btn-secondary btn-lg" href="/daily/"><Icon name="daily" /> Today’s challenge</a>
+      </div>
+      <div class="hero-badges">
+        <span class="chip"><Icon name="check" /> 100% free</span>
+        <span class="chip"><Icon name="check" /> No registration</span>
+        <span class="chip"><Icon name="check" /> Works on phone & desktop</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+    <section class="section" aria-labelledby="featured">
+      <div class="section-head">
+        <div>
+          <h2 id="featured">Featured challenges</h2>
+          <p>Quick to start, hard to master.</p>
+        </div>
+        <a href="/games/">All games →</a>
+      </div>
+      <div class="grid grid-3">
+        {featured.map((g) => {
+          const c = categoryById(g.category);
+          return (
+            <a class="game-card" href={g.url} data-cat={g.category}>
+              <span class="cat-icon"><Icon name={g.category} /></span>
+              <span>
+                <span class="chip chip-cat" style="margin-bottom:.35rem">{c.name}</span>
+                <h3>{g.name}</h3>
+                <p>{g.short}</p>
+              </span>
+            </a>
+          );
+        })}
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0" aria-label="Daily Challenge">
+      <DailyCard client:load />
+    </section>
+
+    <AdSlot slot="home-banner" size="banner" />
+
+    <section class="section" id="categories" aria-labelledby="cats">
+      <div class="section-head">
+        <div>
+          <h2 id="cats">10 skills to train</h2>
+          <p>Every category has at least one complete game plus a guide to help you improve.</p>
+        </div>
+      </div>
+      <div class="grid grid-cats">
+        {CATEGORIES.map((c) => {
+          const n = gamesInCategory(c.id).filter((g) => !g.url.includes('reference')).length;
+          return (
+          <a class="cat-card" href={c.url} data-cat={c.id}>
+            <span class="cat-icon"><Icon name={c.id} /></span>
+            <h3>{c.name}</h3>
+            <p>{c.description}</p>
+            <span class="cat-meta">
+              <span>{n} game{n > 1 ? 's' : ''}</span>
+              <span aria-hidden="true">→</span>
+            </span>
+          </a>
+          );
+        })}
+      </div>
+    </section>
+
+    <section class="section grid grid-2" style="padding-top:0;align-items:start">
+      <div>
+        <div class="section-head"><h2>Your highlights</h2></div>
+        <Highlights client:load />
+      </div>
+      <div>
+        <div class="section-head"><h2>Recently played</h2><a href="/stats/">My stats →</a></div>
+        <RecentlyPlayed client:load />
+      </div>
+    </section>
+
+    <section class="section prose" aria-labelledby="why">
+      <h2 id="why">Why train with short, focused challenges?</h2>
+      <p>
+        Skills such as typing, mental arithmetic and quick recall improve fastest with <strong>frequent, focused practice</strong> and clear
+        feedback. Each SkillSprint game gives you an exact score, tracks your personal best and explains what you got wrong, so every
+        session teaches you something.
+      </p>
+      <p>
+        You do not need an account. Results are stored with your browser’s local storage on this device only — nothing is uploaded, and you
+        can delete everything at any time from <a href="/stats/">your statistics page</a>.
+      </p>
+      <p>
+        New here? Try the <a href="/reaction-time/">reaction time test</a> for a 30-second warm-up, take on the
+        <a href="/memory/">sequence memory game</a>, or measure your words per minute with the <a href="/typing/">typing speed test</a>.
+      </p>
+    </section>
+  </div>
+</BaseLayout>

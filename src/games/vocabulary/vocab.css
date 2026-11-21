@@ -1,0 +1,3 @@
+.misspelled { text-decoration: underline wavy var(--bad); text-underline-offset: 6px; }
+.masked { font-family: var(--font-mono); letter-spacing: 0.12em; }
+.masked .gap { color: var(--cat-ink, var(--primary)); }

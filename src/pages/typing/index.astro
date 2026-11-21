@@ -1,0 +1,40 @@
+---
+import GameLayout from '../../layouts/GameLayout.astro';
+import TypingTest from '../../games/typing/TypingTest';
+const faqs = [
+  { q: 'How is WPM calculated?', a: 'SkillSprint counts the characters of every correctly typed word, including the space after it, divides by five (the standard length of a "word") and divides by the minutes elapsed. Raw WPM counts every character you typed, correct or not.' },
+  { q: 'What is a good typing speed?', a: 'Many people type somewhere around 35–45 WPM. Around 60 WPM is comfortable for most office work, and 80+ WPM is fast. Accuracy matters as much as speed: aim for 95% or higher.' },
+  { q: 'Why is my accuracy lower than expected?', a: 'Accuracy is measured per keystroke. If you type a wrong letter and then fix it with backspace, the mistake still counts against accuracy, even though the final word is correct.' },
+  { q: 'Are my results saved?', a: 'Your personal bests and recent results are saved in this browser only (local storage). They are not uploaded and will not appear on other devices.' },
+];
+---
+<GameLayout
+  gamePageId="typing"
+  title="Typing Speed Test – Free WPM Test (15, 30, 60, 120s)"
+  description="Take a free typing speed test. Choose 15, 30, 60 or 120 seconds, beginner to advanced words, punctuation, numbers or code. Live WPM, accuracy and personal bests."
+  heading="Typing Speed Test"
+  lead="Start typing to begin. The timer starts on your first keystroke — words you type correctly turn bright, mistakes turn red."
+  faqs={faqs}
+>
+  <TypingTest client:load />
+  <Fragment slot="guide">
+    <h2>How to improve your typing speed</h2>
+    <p>Typing speed grows from accuracy and rhythm, not from rushing. These habits make the biggest difference for most people:</p>
+    <ul>
+      <li><strong>Use the home row.</strong> Rest your index fingers on <kbd>F</kbd> and <kbd>J</kbd> (feel for the bumps) and return to them after every reach.</li>
+      <li><strong>Slow down to speed up.</strong> If accuracy drops below about 95%, you are spending more time correcting than typing. Ease off until mistakes are rare.</li>
+      <li><strong>Look at the screen, not your hands.</strong> Touch typing feels slower at first, but it removes the biggest bottleneck.</li>
+      <li><strong>Practise little and often.</strong> A few 60-second tests every day beat one long session per week.</li>
+      <li><strong>Add punctuation and numbers.</strong> Real writing contains capitals, commas and digits. Turning these modes on builds speed you can actually use.</li>
+    </ul>
+    <h2>Test modes explained</h2>
+    <ul>
+      <li><strong>Duration</strong> — 15 and 30 second tests measure burst speed; 60 and 120 seconds measure stamina and consistency.</li>
+      <li><strong>Difficulty</strong> — Beginner uses short, very common words. Intermediate mixes everyday vocabulary. Advanced adds long, less common words.</li>
+      <li><strong>Punctuation</strong> adds capital letters, commas, full stops, quotes and apostrophes. <strong>Numbers</strong> mixes in digits.</li>
+      <li><strong>Code</strong> mode gives you short programs in several languages. See the <a href="/typing/code/">code typing test</a>.</li>
+    </ul>
+    <h2>Understanding your results</h2>
+    <p><strong>WPM</strong> counts only correctly typed words, so it rewards accuracy. <strong>Raw WPM</strong> counts everything you typed. A large gap between the two means mistakes are costing you speed. <strong>Missed characters</strong> are letters you skipped by pressing space early.</p>
+  </Fragment>
+</GameLayout>

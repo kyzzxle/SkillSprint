@@ -1,0 +1,117 @@
+---
+// Layout for every game page: header, playable stage, explanatory guide content and related games.
+import BaseLayout from './BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import AdSlot from '../components/AdSlot.astro';
+import { categoryById, gamesInCategory, GAMES, type CategoryId } from '../data/catalog';
+
+interface Faq { q: string; a: string }
+interface Props {
+  gamePageId: string;
+  title: string;
+  description: string;
+  heading?: string;
+  lead?: string;
+  faqs?: Faq[];
+}
+const { gamePageId, title, description, heading, lead, faqs = [] } = Astro.props;
+const game = GAMES.find((g) => g.id === gamePageId)!;
+const cat = categoryById(game.category as CategoryId);
+const siblings = gamesInCategory(cat.id).filter((g) => g.id !== game.id);
+const isCategoryPage = game.url === cat.url;
+const crumbs = [{ name: 'Home', url: '/' }, { name: 'All games', url: '/games/' }];
+if (!isCategoryPage) crumbs.push({ name: cat.name, url: cat.url });
+crumbs.push({ name: isCategoryPage ? cat.name : game.name, url: game.url });
+const site = Astro.site!;
+const jsonLd: Record<string, unknown>[] = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: new URL(c.url, site).href })),
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: game.name,
+    url: new URL(game.url, site).href,
+    applicationCategory: 'GameApplication',
+    operatingSystem: 'Any (web browser)',
+    description,
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    isAccessibleForFree: true,
+  },
+];
+if (faqs.length) {
+  jsonLd.push({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+  });
+}
+const otherCats = ['typing', 'reaction', 'memory', 'math', 'logic', 'geography'].filter((c) => c !== cat.id).slice(0, 3) as CategoryId[];
+---
+<BaseLayout title={title} description={description} cat={cat.id} jsonLd={jsonLd}>
+  <div class="page-head">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ol>
+          {crumbs.map((c, i) => <li>{i === crumbs.length - 1 ? <span aria-current="page">{c.name}</span> : <a href={c.url}>{c.name}</a>}</li>)}
+        </ol>
+      </nav>
+      <div class="head-row">
+        <span class="cat-icon lg"><Icon name={cat.id} /></span>
+        <div>
+          <span class="chip chip-cat">{cat.name}</span>
+          <h1 style="margin-top:.35rem">{heading ?? game.name}</h1>
+        </div>
+      </div>
+      {lead && <p class="lead">{lead}</p>}
+    </div>
+  </div>
+
+  <div class="container">
+    <section class="game-stage" data-cat={cat.id} aria-label={`${game.name} game`}>
+      <slot />
+    </section>
+    {siblings.length > 0 && (
+      <section class="section" style="padding-bottom:0" aria-labelledby="more-games">
+        <h2 id="more-games" style="font-size:1.3rem">More {cat.name.toLowerCase()} games</h2>
+        <div class="grid grid-3">
+          {siblings.map((g) => (
+            <a class="game-card" href={g.url} data-cat={g.category}>
+              <span class="cat-icon"><Icon name={g.category} /></span>
+              <span><h3>{g.name}</h3><p>{g.short}</p></span>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <AdSlot slot="category" size="banner" />
+
+    <article class="prose section" style="padding-top:0">
+      <slot name="guide" />
+      {faqs.length > 0 && (
+        <section class="faq">
+          <h2>Frequently asked questions</h2>
+          {faqs.map((f) => <details><summary>{f.q}</summary><p>{f.a}</p></details>)}
+        </section>
+      )}
+    </article>
+
+    <section class="section" style="padding-top:0" aria-labelledby="try-next">
+      <h2 id="try-next" style="font-size:1.3rem">Try another skill</h2>
+      <div class="grid grid-3">
+        {otherCats.map((id) => {
+          const c = categoryById(id);
+          return (
+            <a class="game-card" href={c.url} data-cat={c.id}>
+              <span class="cat-icon"><Icon name={c.id} /></span>
+              <span><h3>{c.name}</h3><p>{c.tagline}</p></span>
+            </a>
+          );
+        })}
+      </div>
+    </section>
+  </div>
+</BaseLayout>

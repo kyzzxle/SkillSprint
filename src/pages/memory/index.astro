@@ -1,0 +1,35 @@
+---
+import GameLayout from '../../layouts/GameLayout.astro';
+import SequenceMemory from '../../games/memory/SequenceMemory';
+const faqs = [
+  { q: 'What is a good score in Sequence Memory?', a: 'Reaching level 8–10 is a solid result for most people. Beyond that, strategies such as grouping steps into chunks make a big difference.' },
+  { q: 'Can I use the keyboard?', a: 'Yes. Keys 1–9 map to the tiles from left to right, top to bottom (1 is top-left, 9 is bottom-right). You can also Tab to a tile and press Enter.' },
+  { q: 'Do my scores get saved?', a: 'Your best level is saved in this browser’s local storage. Nothing is uploaded.' },
+];
+---
+<GameLayout
+  gamePageId="sequence-memory"
+  title="Memory Games – Sequence Memory Test & Brain Training"
+  description="Free memory training games. Repeat ever-longer tile sequences, memorise numbers before they vanish, and remember grid patterns. Track your best level."
+  heading="Memory Training"
+  lead="Start with Sequence Memory: watch the tiles flash, then repeat the order. Each level adds a step."
+  faqs={faqs}
+>
+  <SequenceMemory client:load />
+  <Fragment slot="guide">
+    <h2>Three ways to train your memory</h2>
+    <ul>
+      <li><strong>Sequence Memory</strong> (above) trains your memory for order — the ability to hold a series of steps in mind.</li>
+      <li><a href="/memory/number-memory/">Number Memory</a> tests your digit span: how many digits you can hold in short-term memory.</li>
+      <li><a href="/memory/memory-grid/">Memory Grid</a> trains visual-spatial memory: remembering where things are.</li>
+    </ul>
+    <h2>Why does short-term memory feel so limited?</h2>
+    <p>Short-term (or working) memory holds only a handful of items at once, which is why a long sequence suddenly becomes much harder. The trick experienced players use is <strong>chunking</strong> — grouping items into larger meaningful units. Three tiles in a line become one “shape”; the digits 1-9-8-4 become a year.</p>
+    <h2>Strategies for Sequence Memory</h2>
+    <ul>
+      <li>Trace the path with your eyes and imagine the shape it draws.</li>
+      <li>Name the tiles silently (“top-left, centre, bottom…”) or by number.</li>
+      <li>Group steps into threes, and rehearse the whole sequence while it plays.</li>
+    </ul>
+  </Fragment>
+</GameLayout>

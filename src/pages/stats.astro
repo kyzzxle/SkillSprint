@@ -1,0 +1,20 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import Icon from '../components/Icon.astro';
+import StatsDashboard from '../components/StatsDashboard';
+---
+<PageLayout
+  title="My Statistics"
+  description="Your SkillSprint personal bests, recent results and daily challenge streak — stored privately in your browser."
+  heading="My statistics"
+  lead="Personal bests, recent results and your daily streak."
+>
+  <div class="notice" style="margin-bottom:2rem">
+    <Icon name="info" />
+    <span>
+      Your statistics are stored only in this browser on this device (using local storage). They are not uploaded, not linked to any account
+      and are <strong>not synchronised across devices or browsers</strong>. Clearing your browser data or using a private window will remove them.
+    </span>
+  </div>
+  <StatsDashboard client:load />
+</PageLayout>

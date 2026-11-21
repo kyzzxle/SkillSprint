@@ -1,0 +1,27 @@
+---
+import GameLayout from '../../layouts/GameLayout.astro';
+import NumberMemory from '../../games/memory/NumberMemory';
+const faqs = [
+  { q: 'How long is each number shown?', a: 'One second plus 0.6 seconds per digit, so a 7-digit number stays on screen for 5.2 seconds.' },
+  { q: 'What is digit span?', a: 'Digit span is the longest list of digits a person can repeat back correctly. It is a classic, simple measure of short-term memory.' },
+];
+---
+<GameLayout
+  gamePageId="number-memory"
+  title="Number Memory Test – How Many Digits Can You Remember?"
+  description="Free number memory test. Memorise a number before it disappears, then type it back. Each level adds a digit. Find your digit span."
+  heading="Number Memory"
+  lead="A number appears briefly. Remember it, then type it back. Every correct answer adds one digit."
+  faqs={faqs}
+>
+  <NumberMemory client:load />
+  <Fragment slot="guide">
+    <h2>How to remember longer numbers</h2>
+    <ul>
+      <li><strong>Chunk the digits.</strong> 4 8 2 9 1 5 is hard; 482 – 915 is two items.</li>
+      <li><strong>Say it in your head with rhythm.</strong> Phone numbers are grouped for a reason.</li>
+      <li><strong>Look for patterns.</strong> Repeated digits, runs (3-4-5) and familiar numbers (dates, ages) are easier to keep.</li>
+    </ul>
+    <p>Try the other memory games too: <a href="/memory/">Sequence Memory</a> and <a href="/memory/memory-grid/">Memory Grid</a>.</p>
+  </Fragment>
+</GameLayout>

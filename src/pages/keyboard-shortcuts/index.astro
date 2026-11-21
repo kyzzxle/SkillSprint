@@ -1,0 +1,29 @@
+---
+import GameLayout from '../../layouts/GameLayout.astro';
+import ShortcutQuiz from '../../games/shortcuts/ShortcutQuiz';
+const faqs = [
+  { q: 'Why can’t I just press the shortcut on my keyboard?', a: 'Many shortcuts — such as Alt+F4, Cmd+Q, Ctrl+W or Win+L — are handled by your operating system or browser before a web page can see them, and pressing them could close your tab or lock your computer. Choosing the combination is safer and works on phones too.' },
+  { q: 'Are Windows and macOS shortcuts different?', a: 'Often. As a rule of thumb, Ctrl on Windows becomes Cmd on a Mac and Alt becomes Option — but there are many exceptions (VS Code’s terminal and Go to Line use Control on both). The quiz always labels which platform each question is for.' },
+];
+---
+<GameLayout
+  gamePageId="shortcuts"
+  title="Keyboard Shortcuts Quiz – Windows, Mac, VS Code, Excel & Sheets"
+  description="Learn keyboard shortcuts with a free quiz for Windows, macOS, Visual Studio Code, Microsoft Excel and Google Sheets. Practice mode with explanations and a timed mode."
+  heading="Keyboard Shortcuts"
+  lead="Pick an app and platform, then guess the shortcut — or guess what a shortcut does. Every answer is explained."
+  faqs={faqs}
+>
+  <ShortcutQuiz client:load />
+  <Fragment slot="guide">
+    <h2>Why learn keyboard shortcuts?</h2>
+    <p>Reaching for the mouse for every action adds up. A handful of well-chosen shortcuts — switching windows, searching, duplicating a line, filling a column — saves time every single day and keeps your focus on the work.</p>
+    <h2>How to make shortcuts stick</h2>
+    <ul>
+      <li><strong>Learn three at a time.</strong> Pick the actions you do most often and use only the shortcut for a week.</li>
+      <li><strong>Practise here, then use it for real.</strong> The quiz builds recognition; daily use builds muscle memory.</li>
+      <li><strong>Learn the patterns.</strong> Shift often reverses or extends an action (Ctrl+Z / Ctrl+Shift+Z); Alt/Option often moves things.</li>
+    </ul>
+    <p>Prefer to read first? Browse the <a href="/keyboard-shortcuts/reference/">shortcut reference sheets</a>.</p>
+  </Fragment>
+</GameLayout>

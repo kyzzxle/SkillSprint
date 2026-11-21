@@ -1,0 +1,43 @@
+---
+import GameLayout from '../../layouts/GameLayout.astro';
+import MathSprint from '../../games/math/MathSprint';
+const faqs = [
+  { q: 'How do I type fractions?', a: 'Type them as 3/4. You can also type a decimal (0.75) or a mixed number (1 1/2). Any value equal to the correct answer is accepted, so 6/8 is accepted for 3/4.' },
+  { q: 'Can answers be negative or have remainders?', a: 'No. Questions are generated from their answers so that subtraction results are never negative and division always comes out exactly — no remainders and no division by zero.' },
+  { q: 'What do the difficulty levels change?', a: 'Number sizes and question types. For example, Easy multiplication uses times tables up to 10 × 10, while Hard uses two-digit by two-digit products; Easy fractions share a denominator, Hard fractions are multiplied and divided.' },
+];
+---
+<GameLayout
+  gamePageId="math"
+  title="Mental Math Practice – Timed Arithmetic Game"
+  description="Free mental math game: addition, subtraction, multiplication, division, fractions, percentages, square roots and powers. Easy to hard, timed or untimed, with explanations."
+  heading="Mental Math Sprint"
+  lead="Choose the operations you want to practise, pick a difficulty and race the clock — or practise without a timer."
+  faqs={faqs}
+>
+  <MathSprint client:load />
+  <Fragment slot="guide">
+    <h2>Mental maths strategies that actually help</h2>
+    <h3>Addition and subtraction</h3>
+    <ul>
+      <li><strong>Round and adjust:</strong> 48 + 37 = 50 + 37 − 2 = 85.</li>
+      <li><strong>Subtract by counting up:</strong> 503 − 268 → 268 + 32 = 300, + 203 = 503, so the answer is 235.</li>
+    </ul>
+    <h3>Multiplication and division</h3>
+    <ul>
+      <li><strong>Split one number:</strong> 7 × 46 = 7 × 40 + 7 × 6 = 280 + 42 = 322.</li>
+      <li><strong>Double and halve:</strong> 16 × 25 = 8 × 50 = 4 × 100 = 400.</li>
+      <li><strong>Think of division as missing multiplication:</strong> 144 ÷ 12 asks “12 × what = 144?”</li>
+    </ul>
+    <h3>Percentages</h3>
+    <ul>
+      <li>10% is dividing by 10; 5% is half of that; 15% = 10% + 5%.</li>
+      <li>Percentages can be swapped: 8% of 50 equals 50% of 8 = 4.</li>
+    </ul>
+    <h3>Fractions, roots and powers</h3>
+    <ul>
+      <li>To add fractions, find a common denominator first: 1/4 + 1/6 = 3/12 + 2/12 = 5/12.</li>
+      <li>Learn the squares up to 20² and the powers of 2 up to 2¹⁰ = 1024 — they appear everywhere.</li>
+    </ul>
+  </Fragment>
+</GameLayout>

@@ -1,0 +1,33 @@
+---
+import GameLayout from '../../layouts/GameLayout.astro';
+import ReadingTest from '../../games/reading/ReadingTest';
+import { PASSAGES, wordCount } from '../../data/passages';
+const faqs = [
+  { q: 'How is reading speed calculated?', a: 'Words per minute = the number of words in the passage ÷ the minutes between pressing “Start reading” and “I’ve finished”. The word count is calculated from the passage text itself.' },
+  { q: 'What is an average reading speed?', a: 'Estimates vary by study and by type of text, but many adults read ordinary non-fiction somewhere around 200–300 words per minute. Harder texts are naturally read more slowly.' },
+  { q: 'Why are comprehension questions included?', a: 'Reading speed on its own says nothing about understanding — anyone can scroll quickly. Results only count when you answer at least 75% of questions correctly.' },
+];
+const counts = PASSAGES.map((p) => wordCount(p));
+---
+<GameLayout
+  gamePageId="reading"
+  title="Reading Speed Test – Words per Minute with Comprehension"
+  description="Free reading speed test. Read an original passage, get your words per minute, then answer comprehension questions. Beginner, intermediate and advanced passages."
+  heading="Reading Speed Test"
+  lead="Read a passage at your normal pace, then answer questions about it. Speed only counts when you understood what you read."
+  faqs={faqs}
+>
+  <ReadingTest client:load />
+  <Fragment slot="guide">
+    <h2>About the passages</h2>
+    <p>There are {PASSAGES.length} original passages between {Math.min(...counts)} and {Math.max(...counts)} words long, from beginner stories to advanced non-fiction about science and cities.</p>
+    <h2>Reading faster without losing understanding</h2>
+    <ul>
+      <li><strong>Preview first.</strong> Titles and first sentences tell you what to expect.</li>
+      <li><strong>Reduce re-reading.</strong> Going back over lines you already read is one of the biggest causes of slow reading. A finger or pointer under the line can help.</li>
+      <li><strong>Read in phrases,</strong> not single words, once a text feels comfortable.</li>
+      <li><strong>Adjust speed to purpose.</strong> Skim for the gist, read carefully for details. A good reader changes pace.</li>
+    </ul>
+    <p>Be wary of claims of reading thousands of words per minute with full understanding — research suggests that comprehension drops sharply at very high speeds. Treat this test as a way to track your own progress.</p>
+  </Fragment>
+</GameLayout>

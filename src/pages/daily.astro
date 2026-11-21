@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import AdSlot from '../components/AdSlot.astro';
+import DailyChallenge from '../games/daily/DailyChallenge';
+---
+<BaseLayout
+  title="Daily Challenge – 10 New Brain Teasers Every Day"
+  description="A free daily brain challenge: 10 mixed questions on maths, logic, vocabulary, geography, colour and keyboard shortcuts. Same questions for everyone each day. Build your streak."
+>
+  <div class="page-head">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><span aria-current="page">Daily Challenge</span></li></ol></nav>
+      <div class="head-row">
+        <span class="cat-icon lg" style="--cat:var(--primary);--cat-soft:color-mix(in oklab,var(--primary) 14%,transparent);--cat-ink:var(--primary)"><Icon name="daily" /></span>
+        <h1>Daily Challenge</h1>
+      </div>
+      <p class="lead">A new set of ten questions every day. Play once a day to build your streak — no account needed.</p>
+    </div>
+  </div>
+  <div class="container">
+    <section class="game-stage" aria-label="Daily Challenge game">
+      <DailyChallenge client:load />
+    </section>
+    <AdSlot slot="content" size="banner" />
+    <article class="prose section" style="padding-top:0">
+      <h2>How the Daily Challenge works</h2>
+      <ul>
+        <li><strong>Same questions for everyone.</strong> The day’s questions are generated from the calendar date, so friends playing on the same date get the same set.</li>
+        <li><strong>Local midnight.</strong> The challenge follows the date on your device. A visit that crosses midnight keeps the challenge it started with; reload the page to get the new one.</li>
+        <li><strong>First attempt counts.</strong> Your first completed attempt of the day is saved. You can replay as practice without changing your result.</li>
+        <li><strong>Streaks.</strong> Your streak counts consecutive days with a completed challenge. It is stored on this device only.</li>
+      </ul>
+    </article>
+  </div>
+</BaseLayout>

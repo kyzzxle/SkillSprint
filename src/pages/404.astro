@@ -1,0 +1,16 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import Icon from '../components/Icon.astro';
+import { CATEGORIES } from '../data/catalog';
+---
+<PageLayout title="Page not found" description="The page you were looking for does not exist." heading="Page not found" noindex>
+  <p class="muted">That page does not exist — but plenty of challenges do.</p>
+  <div class="grid grid-cats" style="margin-top:1.5rem">
+    {CATEGORIES.map((c) => (
+      <a class="game-card" href={c.url} data-cat={c.id}>
+        <span class="cat-icon"><Icon name={c.id} /></span>
+        <span><h3>{c.name}</h3><p>{c.tagline}</p></span>
+      </a>
+    ))}
+  </div>
+</PageLayout>

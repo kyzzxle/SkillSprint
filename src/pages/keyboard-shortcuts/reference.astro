@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import { APPS, SHORTCUTS, parseCombo, type ShortcutApp } from '../../data/shortcuts';
+const apps = Object.keys(APPS) as ShortcutApp[];
+const fmt = (combo?: string) => (combo ? parseCombo(combo) : null);
+---
+<BaseLayout
+  title="Keyboard Shortcut Cheat Sheets – Windows, Mac, VS Code, Excel, Sheets"
+  description="Reference sheets for the most useful keyboard shortcuts in Windows, macOS, Visual Studio Code, Microsoft Excel and Google Sheets, with Windows and Mac keys side by side."
+  cat="shortcuts"
+>
+  <div class="page-head">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/keyboard-shortcuts/">Keyboard Shortcuts</a></li><li><span aria-current="page">Reference</span></li></ol></nav>
+      <div class="head-row"><span class="cat-icon lg"><Icon name="shortcuts" /></span><h1>Shortcut reference sheets</h1></div>
+      <p class="lead">Every shortcut used in the <a href="/keyboard-shortcuts/">quiz</a>, with Windows and macOS keys shown separately. “Ctrl+K, Z” means press Ctrl+K, release, then press Z.</p>
+      <nav aria-label="Jump to app" class="btn-row" style="margin-top:1rem">
+        {apps.map((a) => <a class="btn btn-secondary btn-sm" href={`#${a}`}>{APPS[a].name}</a>)}
+      </nav>
+    </div>
+  </div>
+  <div class="container section prose" style="max-width:var(--maxw)">
+    {apps.map((a) => (
+      <section id={a} aria-labelledby={`h-${a}`}>
+        <h2 id={`h-${a}`}>{APPS[a].name} shortcuts</h2>
+        <div class="table-wrap">
+          <table class="data">
+            <thead>
+              <tr>
+                <th scope="col">Action</th>
+                {APPS[a].platforms.includes('win') && <th scope="col">Windows</th>}
+                {APPS[a].platforms.includes('mac') && <th scope="col">macOS</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {SHORTCUTS.filter((s) => s.app === a).map((s) => (
+                <tr>
+                  <td><strong>{s.action}</strong><br /><span class="muted" style="font-size:.88rem">{s.explanation}</span></td>
+                  {APPS[a].platforms.includes('win') && (
+                    <td style="white-space:nowrap">{fmt(s.win)?.map((ch, i) => <>{i > 0 && <span class="muted"> then </span>}{ch.map((k, j) => <>{j > 0 && '+'}<kbd>{k}</kbd></>)}</>) ?? <span class="muted">—</span>}</td>
+                  )}
+                  {APPS[a].platforms.includes('mac') && (
+                    <td style="white-space:nowrap">{fmt(s.mac)?.map((ch, i) => <>{i > 0 && <span class="muted"> then </span>}{ch.map((k, j) => <>{j > 0 && '+'}<kbd>{k}</kbd></>)}</>) ?? <span class="muted">—</span>}</td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    ))}
+    <p class="muted">“—” means we have not listed a shortcut for that platform. Shortcuts can vary with keyboard layout, language settings and app version.</p>
+    <AdSlot slot="content" size="banner" />
+  </div>
+</BaseLayout>

@@ -1,0 +1,30 @@
+---
+import GameLayout from '../../layouts/GameLayout.astro';
+import TypingTest from '../../games/typing/TypingTest';
+const faqs = [
+  { q: 'Do I need to type the indentation?', a: 'No. Press Enter at the end of a line and the leading spaces of the next line are filled in automatically, just like a code editor. Automatic indentation does not count towards your WPM.' },
+  { q: 'Which languages are included?', a: 'Short original snippets in JavaScript, TypeScript, Python, CSS, SQL, HTML, Go and Rust.' },
+  { q: 'Why is code typing slower than normal typing?', a: 'Code is full of symbols such as brackets, quotes and operators that live away from the home row. Most people type code noticeably slower than prose, so compare your code WPM only with your previous code results.' },
+];
+---
+<GameLayout
+  gamePageId="typing-code"
+  title="Code Typing Test – Practise Typing Code & Symbols"
+  description="A free typing test for programmers. Type real-looking snippets in JavaScript, Python, SQL, Rust and more, with automatic indentation, live WPM and accuracy."
+  heading="Code Typing Test"
+  lead="Type the code exactly as shown, including brackets and symbols. Press Enter for new lines — indentation is added for you."
+  faqs={faqs}
+>
+  <TypingTest client:load preset={{ mode: 'code' }} />
+  <Fragment slot="guide">
+    <h2>Why practise typing code?</h2>
+    <p>Programmers spend much of the day typing characters that rarely appear in normal writing: <code>{'{ } [ ] ( ) ; => !== &&'}</code>. Practising them deliberately builds muscle memory, so your attention stays on the problem rather than the keyboard.</p>
+    <h2>Tips for faster code typing</h2>
+    <ul>
+      <li>Learn where symbols live on your keyboard layout and which hand should press <kbd>Shift</kbd> for each.</li>
+      <li>Type matching pairs (<code>()</code>, <code>{'{}'}</code>, <code>""</code>) as one smooth motion.</li>
+      <li>Keep accuracy high — in real code a single wrong character can break a program.</li>
+    </ul>
+    <p>This mode works best with a physical keyboard. On phones, use the standard <a href="/typing/">typing test</a>.</p>
+  </Fragment>
+</GameLayout>

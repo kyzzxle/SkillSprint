@@ -1,0 +1,29 @@
+---
+import GameLayout from '../../layouts/GameLayout.astro';
+import { SpellingChallenge } from '../../games/vocabulary/VocabGames';
+const faqs = [
+  { q: 'Which spelling standard is used?', a: 'The spelling words follow standard spellings that are the same in American and British English, so there is only one correct answer for each.' },
+  { q: 'Can there be more than one word that fits the missing letters?', a: 'The meaning of the word is always shown with missing-letter puzzles, so only one word fits both the letters and the definition.' },
+];
+---
+<GameLayout
+  gamePageId="spelling"
+  title="Spelling Test – Commonly Misspelled Words Quiz"
+  description="Free spelling challenge with commonly misspelled English words. Pick the correct spelling, fix misspelled words or solve missing-letter puzzles, with memory tips."
+  heading="Spelling Challenge"
+  lead="Choose the right spelling, fix a misspelled word or fill in missing letters. Every answer comes with a memory tip."
+  faqs={faqs}
+>
+  <SpellingChallenge client:load />
+  <Fragment slot="guide">
+    <h2>Why are some words so easy to misspell?</h2>
+    <p>English spelling reflects centuries of borrowed words and old pronunciations. Words like <em>rhythm</em>, <em>pharaoh</em> and <em>liaison</em> are not spelled the way they sound today, and doubled letters (<em>accommodate</em>, <em>embarrass</em>) are easy to lose.</p>
+    <h2>Memory tricks that work</h2>
+    <ul>
+      <li><strong>Find a hidden word:</strong> there is “a rat” in sep<strong>arat</strong>e and “finite” in de<strong>finite</strong>ly.</li>
+      <li><strong>Make a sentence:</strong> <em>Rhythm Helps Your Two Hips Move</em>.</li>
+      <li><strong>Count the doubles:</strong> nece<strong>ss</strong>ary has one collar (c) and two sleeves (ss).</li>
+    </ul>
+    <p>Prefer meanings to spelling? Try the <a href="/vocabulary/">Vocabulary Quiz</a>.</p>
+  </Fragment>
+</GameLayout>

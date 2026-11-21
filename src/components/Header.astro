@@ -1,0 +1,65 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import SiteSearch from './SiteSearch';
+import { CATEGORIES } from '../data/catalog';
+const path = Astro.url.pathname;
+const links = [
+  { href: '/games/', label: 'All games' },
+  { href: '/daily/', label: 'Daily' },
+  { href: '/stats/', label: 'My stats' },
+];
+---
+<header class="site-header">
+  <div class="container nav">
+    <a class="brand" href="/" aria-label="SkillSprint home">
+      <Logo />
+      <span>Skill<b>Sprint</b></span>
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      {links.map((l) => (
+        <a href={l.href} aria-current={path.startsWith(l.href) ? 'page' : undefined}>{l.label}</a>
+      ))}
+    </nav>
+    <div class="nav-spacer"></div>
+    <SiteSearch client:idle />
+    <button type="button" class="icon-btn theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark / light mode">
+      <Icon name="moon" class="i-moon" />
+      <Icon name="sun" class="i-sun" />
+    </button>
+    <details class="menu" id="site-menu">
+      <summary class="icon-btn" aria-label="Open menu"><Icon name="menu" /></summary>
+      <div class="menu-panel">
+        {links.map((l) => <a href={l.href}>{l.label}</a>)}
+        <hr />
+        {CATEGORIES.map((c) => (
+          <a href={c.url} data-cat={c.id}><span class="dot"></span>{c.name}</a>
+        ))}
+      </div>
+    </details>
+  </div>
+</header>
+<script>
+  // Theme toggle (initial theme is applied by an inline script in <head> to avoid a flash).
+  const btn = document.getElementById('theme-toggle');
+  const syncLabel = () => {
+    const dark = document.documentElement.dataset.theme === 'dark';
+    btn?.setAttribute('aria-pressed', String(dark));
+  };
+  syncLabel();
+  btn?.addEventListener('click', () => {
+    const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('skillsprint:theme', next); } catch { /* storage blocked */ }
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next === 'dark' ? '#0a0f24' : '#f4f5fb');
+    syncLabel();
+  });
+  // Close the menu when clicking outside or pressing Escape.
+  const menu = document.getElementById('site-menu') as HTMLDetailsElement | null;
+  document.addEventListener('click', (e) => {
+    if (menu?.open && !menu.contains(e.target as Node)) menu.open = false;
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && menu?.open) { menu.open = false; menu.querySelector('summary')?.focus(); }
+  });
+</script>

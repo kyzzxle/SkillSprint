@@ -1,0 +1,27 @@
+---
+import GameLayout from '../../layouts/GameLayout.astro';
+import ColorMatch from '../../games/color/ColorMatch';
+const faqs = [
+  { q: 'How is accuracy calculated?', a: 'We convert both colours to the CIELAB colour space and measure their difference with the CIEDE2000 formula (ΔE₀₀). Accuracy is 100% minus 2 points per ΔE unit, so ΔE 0 = 100%, ΔE 5 = 90%, ΔE 25 = 50% and ΔE 50 or more = 0%.' },
+  { q: 'Should I use RGB or HSL sliders?', a: 'HSL (hue, saturation, lightness) matches how people describe colour and is usually easier. RGB is closer to how screens and code work, so it is great practice for developers.' },
+];
+---
+<GameLayout
+  gamePageId="color-match"
+  title="Color Match Game – Recreate Colors With Sliders"
+  description="Free colour matching game. Recreate a target colour with RGB or HSL sliders and get a precise accuracy score based on the CIEDE2000 colour-difference formula."
+  heading="Color Match"
+  lead="Recreate the target colour with sliders. Five rounds, scored with a perceptual colour-difference formula."
+  faqs={faqs}
+>
+  <ColorMatch client:load />
+  <Fragment slot="guide">
+    <h2>How to match colours faster</h2>
+    <ol>
+      <li><strong>Get the hue right first.</strong> A wrong hue costs far more accuracy than slightly wrong lightness.</li>
+      <li><strong>Then lightness</strong> — squint at both swatches to compare brightness.</li>
+      <li><strong>Finally saturation</strong> — is the target vivid or greyish?</li>
+    </ol>
+    <p>On Medium and Hard the target disappears after a few seconds, turning the game into a test of colour memory as well as perception.</p>
+  </Fragment>
+</GameLayout>

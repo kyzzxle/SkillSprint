@@ -1,0 +1,24 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import { SITE } from '../config/site';
+const email = SITE.contactEmail;
+---
+<PageLayout
+  title="Contact"
+  description="Get in touch with SkillSprint to report a mistake in a question, suggest a new game or ask about the site."
+  heading="Contact"
+  narrow
+>
+  <p>We would love to hear from you — especially if you have found a mistake in a question or explanation, or have an idea for a new challenge.</p>
+  {email ? (
+    <p>Email us at <a href={`mailto:${email}`}>{email}</a>. Please include the game name and, for quiz questions, the question text so we can find it quickly.</p>
+  ) : (
+    <p>A contact email address has not been published yet. Until it is, you can still find answers to common questions on the <a href="/about/">About page</a> and in the guides below each game.</p>
+  )}
+  <h2>Before you write</h2>
+  <ul>
+    <li><strong>Lost scores?</strong> Results are stored only in your browser on the device where you played. We cannot see or restore them.</li>
+    <li><strong>Reaction times seem slow?</strong> Displays, wireless mice and browsers all add latency. Compare results on the same device.</li>
+    <li><strong>Privacy questions?</strong> See the <a href="/privacy/">Privacy Policy</a>.</li>
+  </ul>
+</PageLayout>

@@ -1,0 +1,27 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import { CATEGORIES } from '../data/catalog';
+---
+<PageLayout
+  title="About SkillSprint"
+  description="SkillSprint is a free collection of skill-training games covering typing, reaction time, memory, maths, vocabulary, geography, shortcuts, logic, colour and reading."
+  heading="About SkillSprint"
+  narrow
+>
+  <p><strong>SkillSprint</strong> is a free website for practising everyday mental and practical skills through short, replayable challenges. Our motto is simple: <em>Train Your Mind. Challenge Your Limits.</em></p>
+  <h2>What you can train</h2>
+  <ul>
+    {CATEGORIES.map((c) => <li><a href={c.url}>{c.name}</a> — {c.description}</li>)}
+  </ul>
+  <h2>How SkillSprint works</h2>
+  <ul>
+    <li><strong>No accounts.</strong> You can play every game immediately without registering.</li>
+    <li><strong>Your data stays with you.</strong> Scores, streaks and preferences are saved in your browser’s local storage on your device. See the <a href="/privacy/">Privacy Policy</a>.</li>
+    <li><strong>Honest measurements.</strong> Timers use your browser’s high-resolution clock, scores are calculated from what you actually did, and explanations accompany quiz answers.</li>
+    <li><strong>Original content.</strong> Word lists, definitions, puzzles and reading passages were written for SkillSprint. Flags come from the open-source <a href="https://github.com/lipis/flag-icons" rel="noopener">flag-icons</a> project (MIT licence) and map outlines from <a href="https://www.naturalearthdata.com/" rel="noopener">Natural Earth</a> (public domain).</li>
+  </ul>
+  <h2>What SkillSprint is not</h2>
+  <p>SkillSprint games are for practice and fun. They are not medical, psychological or educational assessments, and scores should not be used to diagnose anything or to make decisions about a person’s abilities. Results also depend on your device — for example, display and input latency affect reaction times.</p>
+  <h2>Feedback</h2>
+  <p>Found a mistake in a question or have an idea for a new challenge? Visit the <a href="/contact/">contact page</a>.</p>
+</PageLayout>

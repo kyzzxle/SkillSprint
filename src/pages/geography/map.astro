@@ -1,0 +1,18 @@
+---
+import GameLayout from '../../layouts/GameLayout.astro';
+import GeographyQuiz from '../../games/geography/GeographyQuiz';
+---
+<GameLayout
+  gamePageId="geography-map"
+  title="World Map Quiz – Find the Highlighted Country"
+  description="Free world map quiz. A country is highlighted on the map — can you name it? Zoomed views make small countries visible. Easy to hard levels."
+  heading="World Map Quiz"
+  lead="A country is highlighted on the map. Small countries are circled and the view zooms to the region."
+>
+  <GeographyQuiz client:load preset={{ mode: 'map' }} />
+  <Fragment slot="guide">
+    <h2>Reading the map</h2>
+    <p>The map uses a simple latitude/longitude (equirectangular) projection, which stretches countries near the poles — Greenland and Russia look larger than they really are. The view zooms around the highlighted country so you can use its neighbours and coastline as clues.</p>
+    <p>Map outlines come from Natural Earth’s public-domain 1:110 million dataset. At this scale some very small countries are not drawn, so they appear in the flag and capital quizzes instead.</p>
+  </Fragment>
+</GameLayout>

@@ -1,0 +1,22 @@
+---
+import GameLayout from '../../layouts/GameLayout.astro';
+import GeographyQuiz from '../../games/geography/GeographyQuiz';
+---
+<GameLayout
+  gamePageId="geography-flags"
+  title="Flag Quiz – Guess the Country From Its Flag"
+  description="Free flag quiz: identify countries from their flags. Easy to hard levels with look-alike options from the same region, timed or 10-question rounds."
+  heading="Flag Quiz"
+  lead="Which country does each flag belong to? Hard mode picks options from the same continent."
+>
+  <GeographyQuiz client:load preset={{ mode: 'flags' }} />
+  <Fragment slot="guide">
+    <h2>Tips for recognising flags</h2>
+    <ul>
+      <li><strong>Check the details:</strong> Australia and New Zealand both have a Union Jack and stars — Australia’s stars are white with a large seven-pointed star below the Union Jack, New Zealand’s are red with white borders.</li>
+      <li><strong>Watch the order of stripes:</strong> Indonesia is red over white; Poland is white over red.</li>
+      <li><strong>Look for emblems:</strong> Mexico’s tricolour has an eagle in the centre; Italy’s does not.</li>
+    </ul>
+    <p>Flag images are from the open-source flag-icons project (MIT licence). See also the <a href="/geography/capitals/">capitals quiz</a> and <a href="/geography/map/">map quiz</a>.</p>
+  </Fragment>
+</GameLayout>

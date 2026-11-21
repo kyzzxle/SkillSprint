@@ -1,0 +1,26 @@
+---
+import GameLayout from '../../layouts/GameLayout.astro';
+import GeographyQuiz from '../../games/geography/GeographyQuiz';
+---
+<GameLayout
+  gamePageId="geography-capitals"
+  title="Capital Cities Quiz – Countries & Capitals of the World"
+  description="Free capital cities quiz. Name the capital of each country, or the country of each capital. Easy to hard, with notes on countries with multiple capitals."
+  heading="Capital Cities Quiz"
+  lead="Match countries with their capital cities — in both directions."
+>
+  <GeographyQuiz client:load preset={{ mode: 'capitals' }} />
+  <Fragment slot="guide">
+    <h2>Commonly confused capitals</h2>
+    <p>The biggest or best-known city is often <em>not</em> the capital:</p>
+    <ul>
+      <li>Australia — <strong>Canberra</strong>, not Sydney.</li>
+      <li>Canada — <strong>Ottawa</strong>, not Toronto.</li>
+      <li>Turkey — <strong>Ankara</strong>, not Istanbul.</li>
+      <li>Brazil — <strong>Brasília</strong>, not Rio de Janeiro or São Paulo.</li>
+      <li>Nigeria — <strong>Abuja</strong>, not Lagos.</li>
+      <li>Switzerland — <strong>Bern</strong>, not Zurich or Geneva.</li>
+    </ul>
+    <p>Some countries split capital functions between cities; the explanation after each answer points this out where relevant.</p>
+  </Fragment>
+</GameLayout>

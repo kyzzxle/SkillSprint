@@ -1,0 +1,14 @@
+.flag-img {
+  width: min(260px, 70vw); height: auto; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 10px;
+  box-shadow: 0 0 0 1px var(--border), var(--shadow); display: block; margin: 0 auto; background: var(--surface-2);
+}
+.map-box {
+  width: 100%; max-width: 720px; margin: 0 auto; aspect-ratio: 2 / 1; border-radius: var(--radius); overflow: hidden;
+  background: color-mix(in oklab, var(--cat) 10%, var(--surface-2)); border: 1px solid var(--border);
+  display: grid; place-items: center; font-size: 1rem; font-family: var(--font-sans); color: var(--muted); font-weight: 500;
+}
+.map-box svg { width: 100%; height: 100%; display: block; }
+.map-sea { fill: transparent; }
+.map-land { fill: color-mix(in oklab, var(--text) 32%, var(--surface)); stroke: var(--surface); stroke-width: 0.6; }
+.map-target { fill: var(--cat); stroke: var(--surface); stroke-width: 0.8; }
+.map-marker { fill: none; stroke: var(--cat); stroke-width: 2.5; }

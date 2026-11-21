@@ -1,0 +1,9 @@
+.keys { display: inline-flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; justify-content: center; font-family: var(--font-sans); }
+.keys .chord { display: inline-flex; align-items: center; gap: 0.25rem; }
+.keys .plus { color: var(--muted); margin: 0 0.15rem; font-weight: 600; }
+.keys .then { color: var(--muted); font-size: 0.7em; margin: 0 0.3rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.keys kbd { font-size: 0.85em; padding: 0.15em 0.5em; }
+.quiz-prompt .keys kbd { font-size: 0.7em; }
+.choice .keys { justify-content: flex-start; }
+.choice .keys kbd { font-size: 0.85rem; }
+.sc-action { font-size: 0.85em; }

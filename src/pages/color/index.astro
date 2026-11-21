@@ -1,0 +1,32 @@
+---
+import GameLayout from '../../layouts/GameLayout.astro';
+import ColorChallenge from '../../games/color/ColorChallenge';
+const faqs = [
+  { q: 'How are wrong options chosen?', a: 'Distractor colours are generated so that their difference from the correct colour falls in a set range of CIEDE2000 ΔE — a standard formula for how different two colours look. Easy uses large differences, Hard uses small ones.' },
+  { q: 'Is this game suitable for colour-blind players?', a: 'The game depends on telling colours apart, so some questions will be much harder with colour vision deficiency. It is designed for practice and fun, not to test or diagnose colour vision.' },
+  { q: 'Why might colours look different on my screen?', a: 'Screens vary in brightness, colour calibration and night-light settings, so the same code can look slightly different on different devices.' },
+];
+---
+<GameLayout
+  gamePageId="color"
+  title="Color Game – Guess RGB & HEX Codes, Complementary Colors"
+  description="Free colour recognition game for designers and developers. Guess RGB values, match HEX codes to swatches and find complementary colours. Easy to hard."
+  heading="Color Recognition"
+  lead="Read colour codes like a designer: guess RGB values, find the swatch for a HEX code and spot complementary colours."
+  faqs={faqs}
+>
+  <ColorChallenge client:load />
+  <Fragment slot="guide">
+    <h2>Reading RGB and HEX codes</h2>
+    <p>Screens mix <strong>red, green and blue</strong> light. Each channel goes from 0 (off) to 255 (full). <code>rgb(255, 0, 0)</code> is pure red; equal values give greys, from black <code>rgb(0, 0, 0)</code> to white <code>rgb(255, 255, 255)</code>.</p>
+    <p>A <strong>HEX code</strong> is the same three numbers written in base 16: <code>#FF8800</code> means red FF (255), green 88 (136), blue 00 (0) — an orange.</p>
+    <h2>Quick estimation tricks</h2>
+    <ul>
+      <li>Find the <strong>largest channel</strong> first — it tells you the dominant hue.</li>
+      <li>High values in two channels mix: red + green = yellow, green + blue = cyan, red + blue = magenta.</li>
+      <li>All three channels high → a pale or pastel colour; all low → a dark colour.</li>
+    </ul>
+    <h2>Complementary colours</h2>
+    <p>Complementary colours sit opposite each other on the colour wheel — 180° apart in hue. In this game the complement keeps the same saturation and lightness and rotates the hue by 180°. Want to mix colours yourself? Try <a href="/color/color-match/">Color Match</a>.</p>
+  </Fragment>
+</GameLayout>

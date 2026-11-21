@@ -1,0 +1,6 @@
+.logic-prompt p { font-family: var(--font-sans); font-size: clamp(1.05rem, 2.4vw, 1.3rem); font-weight: 600; line-height: 1.45; margin: 0 0 0.75rem; }
+.logic-display {
+  font-family: var(--font-mono); font-size: clamp(1.3rem, 4vw, 2rem); font-weight: 700; margin: 0 auto; padding: 0.75rem 1rem;
+  background: var(--surface-2); border-radius: var(--radius); display: inline-block; white-space: pre-wrap; line-height: 1.5;
+  color: var(--text); max-width: 100%; overflow-x: auto;
+}

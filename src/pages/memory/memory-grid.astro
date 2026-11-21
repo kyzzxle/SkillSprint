@@ -1,0 +1,27 @@
+---
+import GameLayout from '../../layouts/GameLayout.astro';
+import MemoryGrid from '../../games/memory/MemoryGrid';
+const faqs = [
+  { q: 'How does the difficulty increase?', a: 'Level 1 lights 3 tiles on a 3×3 grid. Each level adds one tile, and the grid grows to 4×4 at level 3, 5×5 at level 6, 6×6 at level 9 and 7×7 at level 13.' },
+  { q: 'What happens when I click a wrong tile?', a: 'It turns red. Three wrong clicks in one level cost a life, the correct tiles are revealed, and you replay that level with a new pattern. The game ends when you run out of lives.' },
+];
+---
+<GameLayout
+  gamePageId="memory-grid"
+  title="Memory Grid – Visual Memory Test"
+  description="Free visual memory game. Memorise which tiles light up, then click them all. The grid grows as you level up. Three lives."
+  heading="Memory Grid"
+  lead="Memorise the highlighted tiles, then click every one of them. The grid and the pattern grow with each level."
+  faqs={faqs}
+>
+  <MemoryGrid client:load />
+  <Fragment slot="guide">
+    <h2>Training visual-spatial memory</h2>
+    <p>Visual-spatial memory helps you remember where things are — where you parked, how a room is arranged, or which cells you just edited in a spreadsheet.</p>
+    <ul>
+      <li>See the pattern as a <strong>shape</strong> (a letter, an arrow, a constellation) rather than separate tiles.</li>
+      <li>Split large grids into <strong>quadrants</strong> and remember how many tiles are in each.</li>
+      <li>Click the tiles you are most sure about first.</li>
+    </ul>
+  </Fragment>
+</GameLayout>

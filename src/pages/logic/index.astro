@@ -1,0 +1,33 @@
+---
+import GameLayout from '../../layouts/GameLayout.astro';
+import LogicPuzzles from '../../games/logic/LogicPuzzles';
+const faqs = [
+  { q: 'Is this an IQ test?', a: 'No. These are practice puzzles in the style of reasoning tests. They are useful for training pattern-spotting and careful thinking, but they are not a validated measure of intelligence.' },
+  { q: 'What if I think a puzzle has another answer?', a: 'Each generated puzzle is built from a single rule, and the explanation shows that rule. If you believe another answer is equally valid, please let us know through the contact page.' },
+];
+---
+<GameLayout
+  gamePageId="logic"
+  title="Logic Puzzles – Number Sequences, Patterns & Brain Teasers"
+  description="Free logic puzzles: number sequences, missing numbers, pattern recognition, reasoning problems and deduction. Difficulty rises as you play, with an explanation for every answer."
+  heading="Logic & Reasoning"
+  lead="Find the rule, pick the answer. Puzzles get harder as you go, and every answer is explained."
+  faqs={faqs}
+>
+  <LogicPuzzles client:load />
+  <Fragment slot="guide">
+    <h2>A method for number sequences</h2>
+    <ol>
+      <li><strong>Look at the differences</strong> between neighbouring numbers. Constant? Growing by the same amount each time?</li>
+      <li><strong>Check ratios.</strong> If the numbers grow fast, each may be multiplied by the same number.</li>
+      <li><strong>Think of famous sequences:</strong> squares (1, 4, 9, 16…), Fibonacci-style sums, alternating rules.</li>
+      <li><strong>Split odd and even positions</strong> — two sequences may be woven together.</li>
+    </ol>
+    <h2>Deduction tips</h2>
+    <ul>
+      <li>Write the facts as a line or a list (A &gt; B &gt; C) before answering.</li>
+      <li>In “must be true” questions, rule out anything that only <em>could</em> be true.</li>
+      <li>For “if … then …” statements, remember: if the result did not happen, the cause did not happen either — but the reverse does not follow.</li>
+    </ul>
+  </Fragment>
+</GameLayout>

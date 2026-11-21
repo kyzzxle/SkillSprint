@@ -1,0 +1,34 @@
+---
+import GameLayout from '../../layouts/GameLayout.astro';
+import { VocabQuiz } from '../../games/vocabulary/VocabGames';
+const faqs = [
+  { q: 'Why is typing only available for definition questions?', a: 'A definition has exactly one target word, so a typed answer can be checked fairly. Synonym and antonym questions have many valid answers in real English, so they use multiple choice.' },
+  { q: 'Where do the definitions come from?', a: 'All definitions, synonyms and explanations were written specifically for SkillSprint.' },
+];
+---
+<GameLayout
+  gamePageId="vocabulary"
+  title="Vocabulary Quiz – Definitions, Synonyms & Antonyms"
+  description="Free English vocabulary quiz. Guess words from definitions, pick synonyms and antonyms, choose easy to hard words, and learn from an explanation after every answer."
+  heading="Vocabulary & Spelling"
+  lead="Build your vocabulary with definition, synonym and antonym questions — every answer comes with the word’s meaning."
+  faqs={faqs}
+>
+  <VocabQuiz client:load />
+  <Fragment slot="guide">
+    <h2>How to grow your vocabulary faster</h2>
+    <ul>
+      <li><strong>Learn words in context.</strong> A definition sticks better when you also know a sentence that uses the word.</li>
+      <li><strong>Learn families of words.</strong> Synonyms and antonyms create links in memory: <em>laconic</em> sits next to <em>terse</em> and opposite <em>garrulous</em>.</li>
+      <li><strong>Use spaced repetition.</strong> Come back to the quiz over several days — words you missed will feel familiar the next time.</li>
+      <li><strong>Notice word parts.</strong> <em>bene-</em> means good (benevolent, benefit); <em>mal-</em> means bad (malicious).</li>
+    </ul>
+    <h2>Question types</h2>
+    <ul>
+      <li><strong>Definitions</strong> — choose or type the word that fits.</li>
+      <li><strong>Synonyms</strong> — choose the word closest in meaning.</li>
+      <li><strong>Antonyms</strong> — choose the word most nearly opposite.</li>
+    </ul>
+    <p>Want to work on spelling instead? Try the <a href="/vocabulary/spelling/">Spelling Challenge</a> with commonly misspelled words and missing-letter puzzles.</p>
+  </Fragment>
+</GameLayout>

@@ -1,0 +1,33 @@
+---
+import GameLayout from '../../layouts/GameLayout.astro';
+import ReactionTest from '../../games/reaction/ReactionTest';
+const faqs = [
+  { q: 'What is a good reaction time?', a: 'For a simple visual test like this one, many people average somewhere around 200–300 ms. Results depend heavily on your hardware: monitors, wireless mice and touch screens can each add noticeable delay.' },
+  { q: 'How is the time measured?', a: 'SkillSprint uses the browser’s high-resolution clock. The start time is taken from the animation frame in which the green screen is drawn, and the end time from your click, tap or key press event.' },
+  { q: 'What happens if I click too early?', a: 'An early click is shown as “Too soon!” and that round is repeated. Early clicks are counted on the results screen but never included in your average.' },
+  { q: 'Can I improve my reaction time?', a: 'Practice helps you get familiar with the test, and being rested and focused helps a lot. Using a wired mouse or keyboard and a high-refresh-rate display reduces hardware delay.' },
+];
+---
+<GameLayout
+  gamePageId="reaction"
+  title="Reaction Time Test – Measure Your Reflexes in Milliseconds"
+  description="Free online reaction time test. Wait for green, click as fast as you can. Accurate millisecond timing, 5 or 10 rounds, average, fastest and slowest times."
+  heading="Reaction Time Test"
+  lead="When the box turns green, click or tap as fast as you can. Your score is the average of all rounds."
+  faqs={faqs}
+>
+  <ReactionTest client:load />
+  <Fragment slot="guide">
+    <h2>What does a reaction time test measure?</h2>
+    <p>This is a <strong>simple reaction time</strong> test: there is only one signal and one response. It measures how long it takes for your eyes to detect the colour change, for your brain to process it and for your finger to move. A small part of the total also comes from your equipment.</p>
+    <h2>Why your device matters</h2>
+    <p>No web page can measure the delay inside your monitor or mouse. A 60 Hz display only updates every 16.7 ms, and some screens and wireless devices add more. That is why comparing your own results on the same device is more meaningful than comparing with other people.</p>
+    <h2>Tips for a fair result</h2>
+    <ul>
+      <li>Rest your finger on the mouse button or space bar before each round.</li>
+      <li>Don’t try to guess the timing — the delay is random between 1.5 and 5 seconds.</li>
+      <li>Use the 10-round mode for a more stable average; single rounds vary a lot.</li>
+      <li>Take a short break if you notice yourself getting slower — fatigue matters.</li>
+    </ul>
+  </Fragment>
+</GameLayout>
