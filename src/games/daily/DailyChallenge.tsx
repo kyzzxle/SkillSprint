@@ -55,7 +55,7 @@ export default function DailyChallenge() {
   if (phase === 'intro') {
     return (
       <SetupPanel
-        title={`Daily Challenge · ${dateLabel}`}
+        title={`Daily challenge for ${dateLabel}`}
         subtitle="Ten mixed questions — the same set for everyone today."
         onStart={() => begin(false)}
         startLabel="Start today’s challenge"
@@ -80,7 +80,7 @@ export default function DailyChallenge() {
     const r = result ?? getDaily(dateKey);
     return (
       <ResultsPanel
-        title={practice ? 'Practice run (not saved)' : `Daily Challenge · ${dateLabel}`}
+        title={practice ? 'Practice run (not saved)' : `Daily challenge for ${dateLabel}`}
         score={`${summary.correct}/${DAILY_COUNT}`}
         subtitle={practice && r ? `Your saved result for today is still ${r.score}/${r.total}.` : `Completed in ${formatDuration(summary.durationMs)}`}
         stats={practice ? undefined : [
@@ -90,7 +90,7 @@ export default function DailyChallenge() {
         ]}
         onRestart={() => begin(true)}
         restartLabel="Practise again"
-        extraActions={<a class="btn btn-secondary btn-lg" href="/games/"><Icon name="arrow" /> More games</a>}
+        extraActions={<a class="btn btn-secondary btn-lg" href="/games/">More games</a>}
       >
         <AnswerStrip answers={summary.answers} />
         <ReviewList items={summary.review} />
@@ -104,7 +104,7 @@ export default function DailyChallenge() {
   return (
     <div class="results">
       <div class="results-head">
-        <p class="eyebrow">Today’s result · {dateLabel}</p>
+        <p class="eyebrow">Your result for {dateLabel}</p>
         <div class="big-score">{r.score}/{r.total}</div>
         <p class="muted">
           <Icon name="check" /> Completed at {new Date(r.completedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} in {formatDuration(r.durationMs)}. A new challenge arrives {tomorrow}.

@@ -3,38 +3,40 @@ import Logo from './Logo.astro';
 import { CATEGORIES } from '../data/catalog';
 import { SITE } from '../config/site';
 const year = new Date().getFullYear();
-const half = Math.ceil(CATEGORIES.length / 2);
 ---
 <footer class="site-footer">
   <div class="container">
     <div class="footer-grid">
       <div>
-        <a class="brand" href="/"><Logo /><span>Skill<b>Sprint</b></span></a>
-        <p class="muted" style="margin-top:.75rem;font-size:.93rem">{SITE.tagline} Free skill-training games — no account needed. Your scores stay in your browser.</p>
+        <a class="brand" href="/"><Logo /><span>SkillSprint</span></a>
+        <p style="margin-top:1rem;max-width:34ch">{SITE.tagline} Ten free skill games, a new daily challenge every day, and no account needed.</p>
       </div>
-      <div>
-        <h2>Games</h2>
-        <ul>{CATEGORIES.slice(0, half).map((c) => <li><a href={c.url}>{c.name}</a></li>)}</ul>
-      </div>
-      <div>
-        <h2>More games</h2>
-        <ul>{CATEGORIES.slice(half).map((c) => <li><a href={c.url}>{c.name}</a></li>)}</ul>
-      </div>
-      <div>
-        <h2>SkillSprint</h2>
+      <nav aria-labelledby="f-games">
+        <h2 id="f-games">Games</h2>
+        <ul>{CATEGORIES.map((c) => <li><a href={c.url}>{c.name}</a></li>)}</ul>
+      </nav>
+      <nav aria-labelledby="f-play">
+        <h2 id="f-play">Play</h2>
         <ul>
-          <li><a href="/daily/">Daily Challenge</a></li>
-          <li><a href="/stats/">My statistics</a></li>
-          <li><a href="/about/">About</a></li>
-          <li><a href="/contact/">Contact</a></li>
+          <li><a href="/games/">All games</a></li>
+          <li><a href="/daily/">Daily challenge</a></li>
+          <li><a href="/stats/">My stats</a></li>
+          <li><a href="/keyboard-shortcuts/reference/">Shortcut cheat sheets</a></li>
+        </ul>
+      </nav>
+      <nav aria-labelledby="f-info">
+        <h2 id="f-info">Information</h2>
+        <ul>
+          <li><a href="/about/">About SkillSprint</a></li>
+          <li><a href="/contact/">Contact us</a></li>
           <li><a href="/privacy/">Privacy Policy</a></li>
           <li><a href="/terms/">Terms of Use</a></li>
         </ul>
-      </div>
+      </nav>
     </div>
     <div class="footer-bottom">
       <span>© {year} SkillSprint. All rights reserved.</span>
-      <span>Flags: <a href="https://github.com/lipis/flag-icons" rel="noopener">flag-icons</a> (MIT) · Map data: <a href="https://www.naturalearthdata.com/" rel="noopener">Natural Earth</a> (public domain)</span>
+      <span>Flags by <a href="https://github.com/lipis/flag-icons" rel="noopener">flag-icons</a> (MIT). Map data by <a href="https://www.naturalearthdata.com/" rel="noopener">Natural Earth</a> (public domain).</span>
     </div>
   </div>
 </footer>

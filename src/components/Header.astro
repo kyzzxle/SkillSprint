@@ -5,16 +5,23 @@ import SiteSearch from './SiteSearch';
 import { CATEGORIES } from '../data/catalog';
 const path = Astro.url.pathname;
 const links = [
-  { href: '/games/', label: 'All games' },
-  { href: '/daily/', label: 'Daily' },
+  { href: '/games/', label: 'Games' },
+  { href: '/daily/', label: 'Daily challenge' },
   { href: '/stats/', label: 'My stats' },
+  { href: '/about/', label: 'About' },
+];
+const info = [
+  { href: '/about/', label: 'About SkillSprint' },
+  { href: '/contact/', label: 'Contact us' },
+  { href: '/privacy/', label: 'Privacy Policy' },
+  { href: '/terms/', label: 'Terms of Use' },
 ];
 ---
 <header class="site-header">
   <div class="container nav">
     <a class="brand" href="/" aria-label="SkillSprint home">
       <Logo />
-      <span>Skill<b>Sprint</b></span>
+      <span>SkillSprint</span>
     </a>
     <nav class="nav-links" aria-label="Main">
       {links.map((l) => (
@@ -23,38 +30,38 @@ const links = [
     </nav>
     <div class="nav-spacer"></div>
     <SiteSearch client:idle />
-    <button type="button" class="icon-btn theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark / light mode">
+    <button type="button" class="icon-btn theme-toggle" id="theme-toggle" aria-label="Switch between light and dark mode" title="Light / dark mode">
       <Icon name="moon" class="i-moon" />
       <Icon name="sun" class="i-sun" />
     </button>
     <details class="menu" id="site-menu">
       <summary class="icon-btn" aria-label="Open menu"><Icon name="menu" /></summary>
       <div class="menu-panel">
-        {links.map((l) => <a href={l.href}>{l.label}</a>)}
-        <hr />
-        {CATEGORIES.map((c) => (
-          <a href={c.url} data-cat={c.id}><span class="dot"></span>{c.name}</a>
+        <a href="/games/">All games</a>
+        <a href="/daily/">Daily challenge</a>
+        <a href="/stats/">My stats</a>
+        <span class="menu-group">The ten lanes</span>
+        {CATEGORIES.map((c, i) => (
+          <a href={c.url} data-cat={c.id}><span class="lane-no">{i + 1}</span>{c.name}</a>
         ))}
+        <span class="menu-group">Information</span>
+        {info.map((l) => <a href={l.href}>{l.label}</a>)}
       </div>
     </details>
   </div>
 </header>
 <script>
-  // Theme toggle (initial theme is applied by an inline script in <head> to avoid a flash).
+  // Theme toggle (the initial theme is applied by an inline script in <head> to avoid a flash).
   const btn = document.getElementById('theme-toggle');
-  const syncLabel = () => {
-    const dark = document.documentElement.dataset.theme === 'dark';
-    btn?.setAttribute('aria-pressed', String(dark));
-  };
+  const syncLabel = () => btn?.setAttribute('aria-pressed', String(document.documentElement.dataset.theme === 'dark'));
   syncLabel();
   btn?.addEventListener('click', () => {
     const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
     document.documentElement.dataset.theme = next;
     try { localStorage.setItem('skillsprint:theme', next); } catch { /* storage blocked */ }
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next === 'dark' ? '#0a0f24' : '#f4f5fb');
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next === 'dark' ? '#0e1734' : '#f3f5f9');
     syncLabel();
   });
-  // Close the menu when clicking outside or pressing Escape.
   const menu = document.getElementById('site-menu') as HTMLDetailsElement | null;
   document.addEventListener('click', (e) => {
     if (menu?.open && !menu.contains(e.target as Node)) menu.open = false;

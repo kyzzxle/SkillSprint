@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Icon from '../components/Icon.astro';
 import AdSlot from '../components/AdSlot.astro';
 import DailyChallenge from '../games/daily/DailyChallenge';
 ---
@@ -11,11 +10,8 @@ import DailyChallenge from '../games/daily/DailyChallenge';
   <div class="page-head">
     <div class="container">
       <nav class="breadcrumb" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><span aria-current="page">Daily Challenge</span></li></ol></nav>
-      <div class="head-row">
-        <span class="cat-icon lg" style="--cat:var(--primary);--cat-soft:color-mix(in oklab,var(--primary) 14%,transparent);--cat-ink:var(--primary)"><Icon name="daily" /></span>
-        <h1>Daily Challenge</h1>
-      </div>
-      <p class="lead">A new set of ten questions every day. Play once a day to build your streak — no account needed.</p>
+      <h1>Daily challenge</h1>
+      <p class="lead">Ten new questions every day, the same set for everyone. Play once a day to build your streak. No account needed.</p>
     </div>
   </div>
   <div class="container">

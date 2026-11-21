@@ -1,9 +1,9 @@
 ---
-// Layout for every game page: header, playable stage, explanatory guide content and related games.
+// Layout for every game page: lane header, playable stage, guide content, FAQ and the next lanes.
 import BaseLayout from './BaseLayout.astro';
 import Icon from '../components/Icon.astro';
 import AdSlot from '../components/AdSlot.astro';
-import { categoryById, gamesInCategory, GAMES, type CategoryId } from '../data/catalog';
+import { CATEGORIES, categoryById, gamesInCategory, GAMES, type CategoryId } from '../data/catalog';
 
 interface Faq { q: string; a: string }
 interface Props {
@@ -48,10 +48,17 @@ if (faqs.length) {
     mainEntity: faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
   });
 }
-const otherCats = ['typing', 'reaction', 'memory', 'math', 'logic', 'geography'].filter((c) => c !== cat.id).slice(0, 3) as CategoryId[];
+const laneNo = CATEGORIES.findIndex((c) => c.id === cat.id) + 1;
+// The next three lanes (wrapping round) keep players moving through all ten skills.
+const nextLanes = [1, 2, 3].map((k) => {
+  const i = (laneNo - 1 + k) % CATEGORIES.length;
+  return { ...CATEGORIES[i], lane: i + 1 };
+});
+const badgeLabel = `Lane ${laneNo}: ${cat.name}`;
+const stageLabel = `${game.name} game`;
 ---
 <BaseLayout title={title} description={description} cat={cat.id} jsonLd={jsonLd}>
-  <div class="page-head">
+  <div class="page-head" data-cat={cat.id}>
     <div class="container">
       <nav class="breadcrumb" aria-label="Breadcrumb">
         <ol>
@@ -59,26 +66,23 @@ const otherCats = ['typing', 'reaction', 'memory', 'math', 'logic', 'geography']
         </ol>
       </nav>
       <div class="head-row">
-        <span class="cat-icon lg"><Icon name={cat.id} /></span>
-        <div>
-          <span class="chip chip-cat">{cat.name}</span>
-          <h1 style="margin-top:.35rem">{heading ?? game.name}</h1>
-        </div>
+        <a class="lane-badge" href={cat.url} aria-label={badgeLabel}><small>Lane</small><b>{laneNo}</b></a>
+        <h1>{heading ?? game.name}</h1>
       </div>
       {lead && <p class="lead">{lead}</p>}
     </div>
   </div>
 
   <div class="container">
-    <section class="game-stage" data-cat={cat.id} aria-label={`${game.name} game`}>
+    <section class="game-stage" data-cat={cat.id} aria-label={stageLabel}>
       <slot />
     </section>
     {siblings.length > 0 && (
-      <section class="section" style="padding-bottom:0" aria-labelledby="more-games">
-        <h2 id="more-games" style="font-size:1.3rem">More {cat.name.toLowerCase()} games</h2>
-        <div class="grid grid-3">
+      <section class="section" style="padding-bottom:0" aria-labelledby="more-games" data-cat={cat.id}>
+        <h2 id="more-games">More in lane {laneNo}</h2>
+        <div class="game-list">
           {siblings.map((g) => (
-            <a class="game-card" href={g.url} data-cat={g.category}>
+            <a class="game-card" href={g.url}>
               <span class="cat-icon"><Icon name={g.category} /></span>
               <span><h3>{g.name}</h3><p>{g.short}</p></span>
             </a>
@@ -89,29 +93,34 @@ const otherCats = ['typing', 'reaction', 'memory', 'math', 'logic', 'geography']
 
     <AdSlot slot="category" size="banner" />
 
-    <article class="prose section" style="padding-top:0">
+    <article class="prose section" style="padding-top:1rem">
       <slot name="guide" />
       {faqs.length > 0 && (
         <section class="faq">
-          <h2>Frequently asked questions</h2>
+          <h2>Questions people ask</h2>
           {faqs.map((f) => <details><summary>{f.q}</summary><p>{f.a}</p></details>)}
         </section>
       )}
     </article>
-
-    <section class="section" style="padding-top:0" aria-labelledby="try-next">
-      <h2 id="try-next" style="font-size:1.3rem">Try another skill</h2>
-      <div class="grid grid-3">
-        {otherCats.map((id) => {
-          const c = categoryById(id);
-          return (
-            <a class="game-card" href={c.url} data-cat={c.id}>
-              <span class="cat-icon"><Icon name={c.id} /></span>
-              <span><h3>{c.name}</h3><p>{c.tagline}</p></span>
-            </a>
-          );
-        })}
-      </div>
-    </section>
   </div>
+
+  <section class="track" aria-labelledby="next-lanes">
+    <div class="container track-head">
+      <h2 id="next-lanes">Next lanes</h2>
+      <p>Keep your run going, or see <a href="/games/" style="color:#fff">all ten lanes</a>.</p>
+    </div>
+    <ol class="lanes">
+      {nextLanes.map((l) => (
+        <li class="lane" data-cat={l.id}>
+          <a class="container" href={l.url}>
+            <span class="lane-num" aria-hidden="true">{l.lane}</span>
+            <span class="lane-body">
+              <span class="lane-name">{l.name}</span>
+              <span class="lane-desc">{l.tagline}</span>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </section>
 </BaseLayout>

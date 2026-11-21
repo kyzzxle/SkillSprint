@@ -265,7 +265,7 @@ export function QuizRunner(props: QuizRunnerProps) {
       {phase === 'feedback' && pause && (
         <div class="btn-row center">
           <button type="button" class="btn btn-primary" ref={nextBtnRef} onClick={goNext}>
-            {props.total !== undefined && index + 1 >= props.total ? 'See results' : 'Next question'} <Icon name="arrow" />
+            {props.total !== undefined && index + 1 >= props.total ? 'See results' : 'Next question'}
           </button>
           <span class="muted" style={{ fontSize: '0.85rem' }}>
             or press <kbd>Enter</kbd>

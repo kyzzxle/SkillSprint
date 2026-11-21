@@ -2,7 +2,7 @@
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { SITE } from '../config/site';
+import { SITE, ADS } from '../config/site';
 
 interface Props {
   title: string;
@@ -37,7 +37,7 @@ const websiteLd = {
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex" />}
-    <meta name="theme-color" content="#f4f5fb" />
+    <meta name="theme-color" content="#f3f5f9" />
     <meta name="color-scheme" content="light dark" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon.png" type="image/png" sizes="64x64" />
@@ -62,10 +62,12 @@ const websiteLd = {
         if (t !== 'light' && t !== 'dark') t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         document.documentElement.dataset.theme = t;
         var m = document.querySelector('meta[name="theme-color"]');
-        if (m) m.setAttribute('content', t === 'dark' ? '#0a0f24' : '#f4f5fb');
+        if (m) m.setAttribute('content', t === 'dark' ? '#0e1734' : '#f3f5f9');
       })();
     </script>
     <script type="application/ld+json" set:html={JSON.stringify([websiteLd, ...jsonLd])} />
+    {ADS.client && <meta name="google-adsense-account" content={ADS.client} />}
+    {ADS.client && <script is:inline async src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADS.client}`} crossorigin="anonymous"></script>}
     <slot name="head" />
   </head>
   <body>

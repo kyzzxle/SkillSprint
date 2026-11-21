@@ -151,12 +151,12 @@ export default function ColorMatch() {
           ) : (
             <div class="swatch xl" style={{ background: rgbToHex(target) }} role="img" aria-label="Target colour" />
           )}
-          <figcaption>Target{phase === 'reveal' ? ` · ${rgbToHex(target)}` : ''}</figcaption>
+          <figcaption>Target{phase === 'reveal' ? ` ${rgbToHex(target)}` : ''}</figcaption>
           {phase === 'play' && viewMs > 0 && !hidden && <Progress value={remaining} max={viewMs} label="Time before the target hides" />}
         </figure>
         <figure>
           <div class="swatch xl" style={{ background: rgbToHex(guess) }} role="img" aria-label="Your colour" />
-          <figcaption>Yours · <span class="mono">{phase === 'reveal' || p.level === 'easy' ? rgbToHex(guess) : '••••••'}</span></figcaption>
+          <figcaption>Your colour <span class="mono">{phase === 'reveal' || p.level === 'easy' ? rgbToHex(guess) : '••••••'}</span></figcaption>
         </figure>
       </div>
 
@@ -200,7 +200,7 @@ export default function ColorMatch() {
           </p>
           <div class="btn-row center">
             <button type="button" ref={nextRef} class="btn btn-primary" onClick={next}>
-              {round + 1 < ROUNDS ? 'Next colour' : 'See results'} <Icon name="arrow" />
+              {round + 1 < ROUNDS ? 'Next colour' : 'See results'}
             </button>
           </div>
         </div>

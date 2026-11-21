@@ -5,6 +5,7 @@ import { iconSvg } from '../../data/icons';
 import { ADS } from '../../config/site';
 import type { RecordOutcome, ScoreRecord } from '../../lib/storage';
 import { prefersReducedMotion } from './hooks';
+import { prettyVariant } from '../../lib/format';
 
 export function Icon({ name, class: cls }: { name: string; class?: string }) {
   return <span class={`icon ${cls ?? ''}`} dangerouslySetInnerHTML={{ __html: iconSvg(name) }} />;
@@ -61,13 +62,13 @@ export function PersonalBest({ best, isNew, label = 'Personal best' }: { best?: 
   if (isNew) {
     return (
       <span class="pb-badge pb-new" role="status">
-        <Icon name="trophy" /> New personal best!
+        <span class="pb-flag">New PB</span> New personal best!
       </span>
     );
   }
   return (
     <span class="pb-badge">
-      <Icon name="trophy" /> {label}: <strong>{best ? best.display : '—'}</strong>
+      <span class="pb-flag">PB</span> {label}: <strong>{best ? best.display : 'none yet'}</strong>
     </span>
   );
 }
@@ -204,12 +205,16 @@ export function ResultsPanel(props: {
           {props.score}
           {props.unit && <small>{props.unit}</small>}
         </h2>
-        {props.subtitle && <p class="muted">{props.subtitle}</p>}
+        {props.subtitle && (
+          <p class="muted" style={{ margin: '0.7rem 0 0' }}>
+            {typeof props.subtitle === 'string' ? prettyVariant(props.subtitle) : props.subtitle}
+          </p>
+        )}
         {props.outcome && (
-          <div class="btn-row center">
+          <div class="btn-row">
             {props.outcome.isBest ? (
               <span class="pb-badge pb-new" role="status">
-                <Icon name="trophy" /> New personal best!{prev ? ` Previous: ${prev.display}` : ''}
+                <span class="pb-flag">New PB</span> New personal best{prev ? `, beating ${prev.display}` : ''}
               </span>
             ) : (
               <PersonalBest best={prev} />
@@ -265,7 +270,7 @@ export function ReviewList({ items, title = 'Review your answers' }: { items: Re
                   <>Your answer: {r.given}</>
                 ) : (
                   <>
-                    Your answer: {r.given || <em>no answer</em>} · Correct: <strong>{r.answer}</strong>
+                    Your answer: {r.given || <em>no answer</em>}. Correct answer: <strong>{r.answer}</strong>
                   </>
                 )}
               </div>

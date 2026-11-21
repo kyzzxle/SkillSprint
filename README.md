@@ -26,7 +26,7 @@ Also: Daily Challenge (`/daily/`), statistics (`/stats/`), all games (`/games/`)
 - [Astro](https://astro.build) 7 — static HTML for every page (fast, SEO-friendly)
 - [Preact](https://preactjs.com) islands — only the game on a page is hydrated
 - TypeScript (strict), plain CSS with design tokens (no CSS framework)
-- Self-hosted fonts via Fontsource (Space Grotesk, JetBrains Mono)
+- Self-hosted fonts via Fontsource: Big Shoulders (display), Archivo (text), JetBrains Mono (typing test)
 - Vitest for unit tests
 - Assets: flags from [flag-icons](https://github.com/lipis/flag-icons) (MIT), map outlines from [Natural Earth](https://www.naturalearthdata.com/) via world-atlas (public domain). Licences are in `public/flags/` and `public/data/`.
 
@@ -67,11 +67,24 @@ The build output in `dist/` is a fully static site and can be hosted anywhere (N
 2. Upload `dist/`. Typical host settings: build command `npm run build`, output directory `dist`.
 3. Serve `404.html` for unknown paths (most static hosts do this automatically).
 
-## Before going live — checklist
+## Design
 
-- `src/config/site.ts`: set `contactEmail` (the Contact page shows a neutral message until you do).
-- `SITE_URL` as described above.
-- **AdSense**: ad placeholders are reserved on the homepage, category/game pages (below the game, never inside controls), content pages and results screens. To enable real ads: set `ADS.enabled = true`, `ADS.client` and the slot ids in `src/config/site.ts`, add the AdSense loader `<script>` to `src/layouts/BaseLayout.astro`, set `ADS.showPlaceholders = false` if you want empty slots hidden, and **update the Privacy Policy** (and add a consent mechanism where required) before ads go live. Ads are never rendered during an active game: the results-screen slot only mounts after a game ends.
+The visual concept is a track meet for your brain: the ten skills are ten lanes of a blue running track (lane numbers 1 to 10 are used consistently across the site), the daily challenge is a race bib, and personal bests are flagged "PB" as in athletics. Colours: track blue #2D5BD0, start-line yellow #FFD23F for primary actions, navy ink #16224A, cool paper #F3F5F9. Tokens live at the top of `src/styles/global.css`.
+
+## Before going live: AdSense checklist
+
+1. In `src/config/site.ts`, set `contactEmail`. It appears on the Contact and Privacy pages; AdSense reviewers expect a working way to reach you.
+2. Set `SITE_URL` (see Deploying) so canonical URLs and the sitemap use your real domain.
+3. Apply for AdSense, then paste your publisher id (`ca-pub-…`) into `ADS.client`. This automatically:
+   - adds the AdSense verification meta tag and loader script to every page,
+   - publishes `/ads.txt` with your seller line,
+   - switches the Privacy Policy's advertising section from "planned" to present tense.
+4. In AdSense, turn on the Google consent message (Privacy & messaging) for visitors in the EEA, UK and Switzerland.
+5. After approval, create ad units, paste their slot ids into `ADS.slots` and set `ADS.enabled = true`.
+
+Empty ad placeholders are only shown in development (`npm run dev`), so the live site never shows blank "advertisement" boxes. Ads are never placed inside game controls or shown during a timed game.
+
+The site already has the pages reviewers look for: About, Contact, Privacy Policy and Terms of Use, linked from every page's footer and menu.
 
 ## Project structure
 

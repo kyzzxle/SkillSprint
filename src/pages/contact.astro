@@ -4,21 +4,36 @@ import { SITE } from '../config/site';
 const email = SITE.contactEmail;
 ---
 <PageLayout
-  title="Contact"
-  description="Get in touch with SkillSprint to report a mistake in a question, suggest a new game or ask about the site."
-  heading="Contact"
+  title="Contact Us"
+  description="Contact SkillSprint to report a mistake in a question, suggest a new game, or ask about privacy or advertising."
+  heading="Contact us"
+  lead="Found a wrong answer, have an idea for a new lane, or a question about the site? We would like to hear it."
   narrow
 >
-  <p>We would love to hear from you — especially if you have found a mistake in a question or explanation, or have an idea for a new challenge.</p>
   {email ? (
-    <p>Email us at <a href={`mailto:${email}`}>{email}</a>. Please include the game name and, for quiz questions, the question text so we can find it quickly.</p>
+    <>
+      <h2>Email</h2>
+      <p style="font-size:1.25rem"><a href={`mailto:${email}`}><strong>{email}</strong></a></p>
+      <p>We read every message and reply as soon as we can.</p>
+    </>
   ) : (
-    <p>A contact email address has not been published yet. Until it is, you can still find answers to common questions on the <a href="/about/">About page</a> and in the guides below each game.</p>
+    <div class="notice" role="note">
+      <span>The contact email for SkillSprint has not been published yet. Set <code>contactEmail</code> in <code>src/config/site.ts</code> before launch.</span>
+    </div>
   )}
+
+  <h2>Reporting a mistake</h2>
+  <p>Every question is meant to have exactly one defensible answer. If you think one is wrong or ambiguous, please include:</p>
+  <ul>
+    <li>the game and its settings (for example “Geography Quiz, capitals, hard”);</li>
+    <li>the question text and the answer you expected;</li>
+    <li>if you can, a source we can check.</li>
+  </ul>
+
   <h2>Before you write</h2>
   <ul>
     <li><strong>Lost scores?</strong> Results are stored only in your browser on the device where you played. We cannot see or restore them.</li>
-    <li><strong>Reaction times seem slow?</strong> Displays, wireless mice and browsers all add latency. Compare results on the same device.</li>
-    <li><strong>Privacy questions?</strong> See the <a href="/privacy/">Privacy Policy</a>.</li>
+    <li><strong>Reaction times seem slow?</strong> Screens, wireless mice and browsers all add a little delay. Compare results on the same device.</li>
+    <li><strong>Privacy or advertising questions?</strong> Our <a href="/privacy/">Privacy Policy</a> explains what is stored and how ads work.</li>
   </ul>
 </PageLayout>

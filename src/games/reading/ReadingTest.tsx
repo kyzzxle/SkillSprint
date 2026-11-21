@@ -99,7 +99,7 @@ export default function ReadingTest() {
         <span class="chip chip-cat">{level}</span>
         <h2>{passage.title}</h2>
         <p class="muted">
-          {words} words · {passage.questions.length} questions afterwards
+          {words} words, then {passage.questions.length} questions
         </p>
         <div class="btn-row center">
           <button type="button" class="btn btn-primary btn-lg" onClick={() => setPhase('reading')}>

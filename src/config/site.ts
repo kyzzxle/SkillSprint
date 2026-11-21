@@ -4,19 +4,19 @@ export const SITE = {
   tagline: 'Train Your Mind. Challenge Your Limits.',
   description:
     'Free online skill-training games: typing speed, reaction time, memory, mental math, vocabulary, geography, keyboard shortcuts, logic, color and reading speed. No sign-up required.',
-  // Shown on the Contact page. Leave empty until you have a real address to publish.
+  // Published on the Contact and Privacy pages. Google AdSense reviewers expect a working way to reach you.
   contactEmail: '',
   locale: 'en',
 };
 
-// Advertising configuration (Google AdSense-ready).
-// While `enabled` is false, <AdSlot> renders clearly-labelled empty placeholders (when `showPlaceholders` is true)
-// so layouts reserve space and do not shift once real ad units are added.
-// To go live: set enabled=true, set `client` to your ca-pub-XXXXXXXX id, map slot ids below,
-// add the AdSense loader script in BaseLayout, and update the Privacy Policy accordingly.
+// Advertising configuration (Google AdSense).
+// 1. Paste your publisher id (ca-pub-XXXXXXXXXXXXXXXX) into `client`. This adds the AdSense verification
+//    tag + loader to every page, generates /ads.txt, and switches the Privacy Policy to describe live ads.
+// 2. After approval, create ad units in AdSense, paste their slot ids below and set `enabled: true`.
+// Empty, labelled placeholders are shown only during development so layouts reserve space for ads.
 export const ADS = {
   enabled: false,
-  showPlaceholders: true,
+  showPlaceholders: import.meta.env.DEV,
   client: '',
   slots: {
     'home-banner': '',
@@ -25,3 +25,6 @@ export const ADS = {
     'results': '',
   } as Record<string, string>,
 };
+
+/** Publisher id in the form used by ads.txt ("pub-…"). */
+export const adsPublisherId = () => ADS.client.replace(/^ca-/, '');

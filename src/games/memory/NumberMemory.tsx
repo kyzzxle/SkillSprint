@@ -156,7 +156,7 @@ export default function NumberMemory() {
           </div>
           <div class="btn-row center" style={{ marginTop: '0.75rem' }}>
             <button type="button" ref={nextRef} class="btn btn-primary" onClick={next}>
-              {ok ? `Next: ${digits + 1} digits` : 'See results'} <Icon name="arrow" />
+              {ok ? `Next: ${digits + 1} digits` : 'See results'}
             </button>
           </div>
         </div>

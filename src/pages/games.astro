@@ -8,23 +8,21 @@ import { CATEGORIES, gamesInCategory } from '../data/catalog';
   title="All Skill Training Games"
   description="Browse every SkillSprint game: typing tests, reaction time, memory, mental math, vocabulary, geography, keyboard shortcuts, logic puzzles, colour and reading speed."
   heading="All games"
-  lead="Ten skills in one place. Every game is free and works in your browser — no download, no account."
+  lead="Ten lanes, one for each skill. Every game is free and runs in your browser, with nothing to download and no account."
 >
-  <div class="grid" style="gap:2.25rem">
-    {CATEGORIES.map((c) => (
+  <div style="display:grid;gap:3rem">
+    {CATEGORIES.map((c, i) => (
       <section aria-labelledby={`cat-${c.id}`} data-cat={c.id}>
-        <div class="section-head" style="margin-bottom:.9rem">
-          <div style="display:flex;gap:.8rem;align-items:center">
-            <span class="cat-icon"><Icon name={c.id} /></span>
-            <div>
-              <h2 id={`cat-${c.id}`} style="font-size:1.35rem;margin:0"><a href={c.url} style="color:inherit;text-decoration:none">{c.name}</a></h2>
-              <p style="margin:.15rem 0 0">{c.description}</p>
-            </div>
+        <div class="head-row" style="display:flex;gap:1rem;align-items:center;margin-bottom:1rem">
+          <a class="lane-badge" href={c.url} aria-label={`Lane ${i + 1}: ${c.name}`}><small>Lane</small><b>{i + 1}</b></a>
+          <div>
+            <h2 id={`cat-${c.id}`} style="margin:0"><a href={c.url} style="color:inherit;text-decoration:none">{c.name}</a></h2>
+            <p class="muted" style="margin:.3rem 0 0">{c.description}</p>
           </div>
         </div>
-        <div class="grid grid-3">
+        <div class="game-list">
           {gamesInCategory(c.id).map((g) => (
-            <a class="game-card" href={g.url} data-cat={g.category}>
+            <a class="game-card" href={g.url}>
               <span class="cat-icon"><Icon name={g.category} /></span>
               <span><h3>{g.name}</h3><p>{g.short}</p></span>
             </a>

@@ -4,6 +4,7 @@ import { SCORE_RULES, pageForGameId } from '../data/catalog';
 import { addDays, formatDateKey, localDateKey, timeAgo } from '../lib/date';
 import { dailyStreak, load, onStorageChange, resetAll, storageAvailable, type StoreData } from '../lib/storage';
 import { ConfirmDialog, EmptyState, Icon, StatGrid } from './ui';
+import { prettyVariant } from '../lib/format';
 
 export default function StatsDashboard() {
   const [data, setData] = useState<StoreData | null>(null);
@@ -83,7 +84,7 @@ export default function StatsDashboard() {
                 {bests.map((b) => (
                   <tr key={b.gameId + b.variant}>
                     <td><a href={pageForGameId(b.gameId)?.url ?? (b.gameId === 'daily' ? '/daily/' : '/')}>{SCORE_RULES[b.gameId]?.label ?? b.gameId}</a></td>
-                    <td class="muted">{b.variant}</td>
+                    <td class="muted">{prettyVariant(b.variant)}</td>
                     <td class="num">{b.display}</td>
                     <td class="muted">{timeAgo(b.date)}</td>
                   </tr>
@@ -111,7 +112,7 @@ export default function StatsDashboard() {
                 {data.history.slice(0, 50).map((h, i) => (
                   <tr key={i}>
                     <td><a href={h.url}>{SCORE_RULES[h.gameId]?.label ?? h.gameId}</a></td>
-                    <td class="muted">{h.variant}</td>
+                    <td class="muted">{prettyVariant(h.variant)}</td>
                     <td class="num">{h.display}</td>
                     <td class="muted">{timeAgo(h.date)}</td>
                   </tr>

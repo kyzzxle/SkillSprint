@@ -6,22 +6,37 @@ import { CATEGORIES } from '../data/catalog';
   title="About SkillSprint"
   description="SkillSprint is a free collection of skill-training games covering typing, reaction time, memory, maths, vocabulary, geography, shortcuts, logic, colour and reading."
   heading="About SkillSprint"
+  lead="SkillSprint is a free website of quick skill games. Think of it as a track meet for your brain: ten lanes, each with a score to beat."
   narrow
 >
-  <p><strong>SkillSprint</strong> is a free website for practising everyday mental and practical skills through short, replayable challenges. Our motto is simple: <em>Train Your Mind. Challenge Your Limits.</em></p>
-  <h2>What you can train</h2>
+  <h2>Why we built it</h2>
+  <p>Most people would like to type faster, do sums in their head, remember more or read more quickly, but practice apps tend to want an account, a subscription or twenty minutes of your day. SkillSprint is the opposite: open a page, play for a minute or two, see an honest score, and come back tomorrow to beat it.</p>
+
+  <h2>The ten lanes</h2>
+  <ol>
+    {CATEGORIES.map((c) => <li><a href={c.url}>{c.name}</a>: {c.description}</li>)}
+  </ol>
+  <p>On top of the games there is a <a href="/daily/">daily challenge</a>: ten mixed questions that are the same for everyone on the same day, with a streak for every day in a row you play.</p>
+
+  <h2>How we keep scores honest</h2>
   <ul>
-    {CATEGORIES.map((c) => <li><a href={c.url}>{c.name}</a> — {c.description}</li>)}
+    <li><strong>Real measurements.</strong> Timers use your browser’s high-resolution clock. Typing speed counts only correctly typed words; colour accuracy uses CIEDE2000, a standard measure of how different two colours look.</li>
+    <li><strong>Checked questions.</strong> Maths, logic and colour questions are generated from their answers, so they are always solvable, and our automated tests check thousands of them. Word definitions, puzzles and reading passages were written for SkillSprint.</li>
+    <li><strong>Explanations, not just marks.</strong> Quiz answers come with the reasoning, so a wrong answer still teaches you something.</li>
   </ul>
-  <h2>How SkillSprint works</h2>
-  <ul>
-    <li><strong>No accounts.</strong> You can play every game immediately without registering.</li>
-    <li><strong>Your data stays with you.</strong> Scores, streaks and preferences are saved in your browser’s local storage on your device. See the <a href="/privacy/">Privacy Policy</a>.</li>
-    <li><strong>Honest measurements.</strong> Timers use your browser’s high-resolution clock, scores are calculated from what you actually did, and explanations accompany quiz answers.</li>
-    <li><strong>Original content.</strong> Word lists, definitions, puzzles and reading passages were written for SkillSprint. Flags come from the open-source <a href="https://github.com/lipis/flag-icons" rel="noopener">flag-icons</a> project (MIT licence) and map outlines from <a href="https://www.naturalearthdata.com/" rel="noopener">Natural Earth</a> (public domain).</li>
-  </ul>
+
+  <h2>Your data stays with you</h2>
+  <p>There are no accounts. Scores, streaks and settings are saved in your browser on your device, and you can delete them at any time on <a href="/stats/">My stats</a>. Our <a href="/privacy/">Privacy Policy</a> explains this, and how advertising works, in full.</p>
+
+  <h2>How SkillSprint stays free</h2>
+  <p>SkillSprint is free for everyone and is supported by advertising. Ads are kept away from game controls and are never shown during a timed game.</p>
+
   <h2>What SkillSprint is not</h2>
-  <p>SkillSprint games are for practice and fun. They are not medical, psychological or educational assessments, and scores should not be used to diagnose anything or to make decisions about a person’s abilities. Results also depend on your device — for example, display and input latency affect reaction times.</p>
-  <h2>Feedback</h2>
-  <p>Found a mistake in a question or have an idea for a new challenge? Visit the <a href="/contact/">contact page</a>.</p>
+  <p>The games are for practice and fun. They are not medical, psychological or educational assessments, and a score should not be used to judge anyone’s abilities. Results also depend on your device; for example, screens and mice add delay to reaction times.</p>
+
+  <h2>Credits</h2>
+  <p>Country flags come from the open-source <a href="https://github.com/lipis/flag-icons" rel="noopener">flag-icons</a> project (MIT licence) and map outlines from <a href="https://www.naturalearthdata.com/" rel="noopener">Natural Earth</a> (public domain). Typefaces are Big Shoulders, Archivo and JetBrains Mono, all under the SIL Open Font License.</p>
+
+  <h2>Get in touch</h2>
+  <p>Spotted a mistake or have an idea for a new lane? Visit the <a href="/contact/">contact page</a>.</p>
 </PageLayout>

@@ -387,7 +387,7 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
         </button>
         <span class="muted hint">
           <kbd>Tab</kbd> then <kbd>Enter</kbd> or <kbd>Esc</kbd> to restart
-          {mode === 'code' ? ' · indentation is filled in for you' : ''}
+          {mode === 'code' ? '. Indentation is filled in for you.' : ''}
         </span>
         <PersonalBest best={best} />
       </div>

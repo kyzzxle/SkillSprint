@@ -1,11 +1,15 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Icon from '../components/Icon.astro';
 import AdSlot from '../components/AdSlot.astro';
-import { DailyCard, Highlights, RecentlyPlayed } from '../components/HomeWidgets';
-import { CATEGORIES, GAMES, categoryById, gamesInCategory } from '../data/catalog';
+import { DailyBib, SeasonBoard, RecentlyPlayed } from '../components/HomeWidgets';
+import { CATEGORIES, GAMES } from '../data/catalog';
 
-const featured = GAMES.filter((g) => g.featured);
+const lanes = CATEGORIES.map((c, i) => ({
+  ...c,
+  lane: i + 1,
+  flagship: GAMES.find((g) => g.category === c.id && g.flagship)!,
+  count: GAMES.filter((g) => g.category === c.id && !g.url.includes('reference')).length,
+}));
 ---
 <BaseLayout
   title="SkillSprint – Free Brain & Skill Training Games"
@@ -13,108 +17,109 @@ const featured = GAMES.filter((g) => g.featured);
   description="Train your typing speed, reaction time, memory, mental math, vocabulary, geography, keyboard shortcuts, logic, colour vision and reading speed. Free, no sign-up."
 >
   <section class="hero">
-    <div class="container">
-      <p class="eyebrow">Free · No account · 10 skills</p>
-      <h1>Train Your Mind. <span class="accent">Challenge Your Limits.</span></h1>
-      <p class="lead">
-        SkillSprint brings typing tests, reaction challenges, memory games, mental maths and six more skill trainers together in one place.
-        Pick a game and start in seconds — your personal bests are saved right in your browser.
-      </p>
-      <div class="btn-row" style="margin-top:1.5rem">
-        <a class="btn btn-primary btn-lg" href="/typing/"><Icon name="play" /> Start a typing test</a>
-        <a class="btn btn-secondary btn-lg" href="/daily/"><Icon name="daily" /> Today’s challenge</a>
+    <div class="container hero-grid">
+      <div>
+        <h1><span>Train your mind.</span> <span>Challenge your limits.</span></h1>
+        <p class="lead">
+          Ten quick skill games, from typing speed to mental maths, each with a score to beat.
+          Pick a lane, set a personal best, then come back tomorrow for a new daily challenge.
+        </p>
+        <div class="btn-row">
+          <a class="btn btn-primary btn-lg" href="#lanes">Pick a lane</a>
+          <a class="btn btn-secondary btn-lg" href="/daily/">Today’s challenge</a>
+        </div>
+        <p class="hero-note">Free to play. No account. Your scores are saved in this browser.</p>
       </div>
-      <div class="hero-badges">
-        <span class="chip"><Icon name="check" /> 100% free</span>
-        <span class="chip"><Icon name="check" /> No registration</span>
-        <span class="chip"><Icon name="check" /> Works on phone & desktop</span>
-      </div>
+      <DailyBib client:load />
     </div>
   </section>
 
-  <div class="container">
-    <section class="section" aria-labelledby="featured">
-      <div class="section-head">
-        <div>
-          <h2 id="featured">Featured challenges</h2>
-          <p>Quick to start, hard to master.</p>
-        </div>
-        <a href="/games/">All games →</a>
-      </div>
-      <div class="grid grid-3">
-        {featured.map((g) => {
-          const c = categoryById(g.category);
-          return (
-            <a class="game-card" href={g.url} data-cat={g.category}>
-              <span class="cat-icon"><Icon name={g.category} /></span>
-              <span>
-                <span class="chip chip-cat" style="margin-bottom:.35rem">{c.name}</span>
-                <h3>{g.name}</h3>
-                <p>{g.short}</p>
-              </span>
-            </a>
-          );
-        })}
-      </div>
-    </section>
+  <section class="track" id="lanes" aria-labelledby="lanes-title">
+    <div class="container track-head">
+      <h2 id="lanes-title">Pick a lane</h2>
+      <p>Each lane is one skill. Your personal best (PB) for each lane shows up here once you have played it.</p>
+    </div>
+    <ol class="lanes">
+      {lanes.map((l) => (
+        <li class="lane" data-cat={l.id}>
+          <a class="container" href={l.url} aria-label={`Lane ${l.lane}: ${l.name}. ${l.tagline}`}>
+            <span class="lane-num" aria-hidden="true">{l.lane}</span>
+            <span class="lane-body">
+              <span class="lane-name">{l.name}</span>
+              <span class="lane-desc">{l.tagline} {l.count > 1 ? `${l.count} games.` : ''}</span>
+            </span>
+            <span class="lane-pb" data-pb={l.flagship.gameId}>
+              <span class="pb-none">Not run yet</span>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </section>
 
-    <section class="section" style="padding-top:0" aria-label="Daily Challenge">
-      <DailyCard client:load />
+  <div class="container">
+    <section class="section grid grid-2" aria-label="Your progress" style="align-items:start">
+      <div>
+        <h2>Your season</h2>
+        <SeasonBoard client:load />
+      </div>
+      <div>
+        <h2>Latest results</h2>
+        <RecentlyPlayed client:load />
+        <p style="margin-top:1rem"><a href="/stats/">All your stats and personal bests</a></p>
+      </div>
     </section>
 
     <AdSlot slot="home-banner" size="banner" />
 
-    <section class="section" id="categories" aria-labelledby="cats">
-      <div class="section-head">
-        <div>
-          <h2 id="cats">10 skills to train</h2>
-          <p>Every category has at least one complete game plus a guide to help you improve.</p>
-        </div>
-      </div>
-      <div class="grid grid-cats">
-        {CATEGORIES.map((c) => {
-          const n = gamesInCategory(c.id).filter((g) => !g.url.includes('reference')).length;
-          return (
-          <a class="cat-card" href={c.url} data-cat={c.id}>
-            <span class="cat-icon"><Icon name={c.id} /></span>
-            <h3>{c.name}</h3>
-            <p>{c.description}</p>
-            <span class="cat-meta">
-              <span>{n} game{n > 1 ? 's' : ''}</span>
-              <span aria-hidden="true">→</span>
-            </span>
-          </a>
-          );
-        })}
-      </div>
-    </section>
-
-    <section class="section grid grid-2" style="padding-top:0;align-items:start">
-      <div>
-        <div class="section-head"><h2>Your highlights</h2></div>
-        <Highlights client:load />
-      </div>
-      <div>
-        <div class="section-head"><h2>Recently played</h2><a href="/stats/">My stats →</a></div>
-        <RecentlyPlayed client:load />
-      </div>
-    </section>
-
-    <section class="section prose" aria-labelledby="why">
-      <h2 id="why">Why train with short, focused challenges?</h2>
+    <section class="section prose" aria-labelledby="why" style="padding-top:1rem">
+      <h2 id="why">Short sessions, real progress</h2>
       <p>
-        Skills such as typing, mental arithmetic and quick recall improve fastest with <strong>frequent, focused practice</strong> and clear
-        feedback. Each SkillSprint game gives you an exact score, tracks your personal best and explains what you got wrong, so every
-        session teaches you something.
+        Skills like typing, mental arithmetic and quick recall improve fastest with short, focused practice and honest feedback.
+        Every SkillSprint game gives you an exact score, keeps your personal best and explains the answers you missed, so a
+        two-minute session still teaches you something.
       </p>
       <p>
-        You do not need an account. Results are stored with your browser’s local storage on this device only — nothing is uploaded, and you
-        can delete everything at any time from <a href="/stats/">your statistics page</a>.
-      </p>
-      <p>
-        New here? Try the <a href="/reaction-time/">reaction time test</a> for a 30-second warm-up, take on the
-        <a href="/memory/">sequence memory game</a>, or measure your words per minute with the <a href="/typing/">typing speed test</a>.
+        There is nothing to sign up for. Results are stored in your browser on this device only, and you can delete them at any
+        time from <a href="/stats/">My stats</a>. Read more <a href="/about/">about SkillSprint</a> or see how we handle data in
+        our <a href="/privacy/">Privacy Policy</a>.
       </p>
     </section>
   </div>
 </BaseLayout>
+
+<script>
+  import { load } from '../lib/storage';
+  import { SCORE_RULES } from '../data/catalog';
+
+  // Fill each lane with the visitor's personal best from local storage.
+  const data = load();
+  document.querySelectorAll<HTMLElement>('[data-pb]').forEach((el) => {
+    const gameId = el.dataset.pb!;
+    const lower = SCORE_RULES[gameId]?.better === 'lower';
+    let best: { score: number; display: string } | null = null;
+    for (const [key, rec] of Object.entries(data.bests)) {
+      if (key.split('|')[0] !== gameId) continue;
+      if (!best || (lower ? rec.score < best.score : rec.score > best.score)) best = rec;
+    }
+    if (best) {
+      el.innerHTML = '';
+      const flag = document.createElement('span');
+      flag.className = 'pb-flag';
+      flag.textContent = 'PB';
+      const value = document.createElement('span');
+      value.className = 'pb-value';
+      value.textContent = best.display;
+      el.append(flag, value);
+    }
+  });
+  // Paint the lane lines once per visit.
+  try {
+    if (!sessionStorage.getItem('ss-track-painted')) {
+      document.querySelector('.track')?.classList.add('animate');
+      sessionStorage.setItem('ss-track-painted', '1');
+    }
+  } catch {
+    /* storage blocked: skip the animation */
+  }
+</script>

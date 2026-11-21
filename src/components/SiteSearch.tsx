@@ -16,14 +16,14 @@ function buildIndex(): Entry[] {
   const entries: Entry[] = [];
   for (const c of CATEGORIES) {
     entries.push({
-      title: c.name, sub: `Category · ${c.tagline}`, url: c.url, cat: c.id, kind: 'category',
+      title: c.name, sub: c.tagline, url: c.url, cat: c.id, kind: 'category',
       haystack: [c.name, c.tagline, c.description, ...c.keywords].join(' ').toLowerCase(),
     });
   }
   for (const g of GAMES) {
     const c = categoryById(g.category);
     entries.push({
-      title: g.name, sub: `${c.name} · ${g.short}`, url: g.url, cat: g.category, kind: 'game',
+      title: g.name, sub: `${c.name}: ${g.short}`, url: g.url, cat: g.category, kind: 'game',
       haystack: [g.name, g.short, ...g.keywords, c.name, ...c.keywords].join(' ').toLowerCase(),
     });
   }
