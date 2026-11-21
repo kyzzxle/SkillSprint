@@ -48,6 +48,44 @@ function polygons(geom) {
   if (!geom) return [];
   return geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
 }
+
+// Some shapes (Russia, Fiji) cross the 180° meridian, where longitude jumps from +180 to -180.
+// Drawn naively, that jump becomes a line across the entire map. "Unwrap" each ring so longitudes
+// change continuously (they may go past ±180), then draw extra copies shifted by 360° so the part
+// that sticks out past one map edge appears at the other edge. The SVG viewport clips the overflow.
+function unwrapRing(ring) {
+  const out = [];
+  let prev = null;
+  for (const [lon0, lat] of ring) {
+    let lon = lon0;
+    if (prev !== null) {
+      while (lon - prev > 180) lon -= 360;
+      while (lon - prev < -180) lon += 360;
+    }
+    out.push([lon, lat]);
+    prev = lon;
+  }
+  return out;
+}
+
+/** Returns the polygon's rings unwrapped, plus shifted copies when it extends past ±180°. */
+function polygonCopies(polygon) {
+  const rings = polygon.map(unwrapRing);
+  // Holes must share the outer ring's longitude range.
+  const outerMid = rings[0].reduce((a, p) => a + p[0], 0) / rings[0].length;
+  for (const r of rings.slice(1)) {
+    const mid = r.reduce((a, p) => a + p[0], 0) / r.length;
+    const shift = Math.round((outerMid - mid) / 360) * 360;
+    if (shift) r.forEach((p) => (p[0] += shift));
+  }
+  const lons = rings.flat().map((p) => p[0]);
+  const min = Math.min(...lons), max = Math.max(...lons);
+  const copies = [rings];
+  if (min < -180) copies.push(rings.map((r) => r.map(([lon, lat]) => [lon + 360, lat])));
+  if (max > 180) copies.push(rings.map((r) => r.map(([lon, lat]) => [lon - 360, lat])));
+  return copies;
+}
+const wrapX = (x) => ((x % W) + W) % W;
 function ringArea(ring) {
   let a = 0;
   for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) a += (ring[j][0] + ring[i][0]) * (ring[j][1] - ring[i][1]);
@@ -61,15 +99,15 @@ for (const f of geo.features) {
   if (f.properties?.name === 'Antarctica') continue;
   const polys = polygons(f.geometry);
   if (!polys.length) continue;
-  const d = polys.map((p) => p.map(ringToPath).join('')).join('');
+  const d = polys.flatMap(polygonCopies).map((rings) => rings.map(ringToPath).join('')).join('');
   const item = { id: f.id ?? null, name: f.properties?.name ?? '', d };
   if (f.id && wanted.has(f.id)) {
     // Marker: centre of the bounding box of the largest polygon (keeps markers on the mainland).
-    const largest = polys.reduce((a, b) => (ringArea(b[0]) > ringArea(a[0]) ? b : a));
-    const xs = largest[0].map((p) => px(p[0]));
-    const ys = largest[0].map((p) => py(p[1]));
+    const largest = unwrapRing(polys.reduce((a, b) => (ringArea(unwrapRing(b[0])) > ringArea(unwrapRing(a[0])) ? b : a))[0]);
+    const xs = largest.map((p) => (p[0] + 180) * k);
+    const ys = largest.map((p) => py(p[1]));
     const [minX, maxX, minY, maxY] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
-    item.cx = +((minX + maxX) / 2).toFixed(1);
+    item.cx = +wrapX((minX + maxX) / 2).toFixed(1);
     item.cy = +((minY + maxY) / 2).toFixed(1);
     item.size = +Math.max(maxX - minX, maxY - minY).toFixed(1);
     found.add(f.id);
