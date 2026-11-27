@@ -19,21 +19,30 @@ function New-RoundRect([float]$x, [float]$y, [float]$w, [float]$h, [float]$r) {
   return $p
 }
 
-# Logo mark on a 32-unit grid: track bend (two white lanes) and a yellow start line.
+# Logo mark on a 64-unit grid (same geometry as src/components/Logo.astro):
+# a forward-leaning yellow "S" drawn as a two-lane track on a blue tile, with a white finish line.
 function Draw-Logo([System.Drawing.Graphics]$g, [float]$x, [float]$y, [float]$s, [bool]$withTile) {
-  $k = $s / 32
-  if ($withTile) { $g.FillPath((New-Object System.Drawing.SolidBrush($track)), (New-RoundRect $x $y $s $s (8 * $k))) }
-  $pen = New-Object System.Drawing.Pen([System.Drawing.Color]::White, (2.4 * $k))
-  $pen.StartCap = 'Round'; $pen.EndCap = 'Round'
-  # Outer lane: down the left, round the bend, along the top
-  $g.DrawLine($pen, ($x + 6.5 * $k), ($y + 26 * $k), ($x + 6.5 * $k), ($y + 15.5 * $k))
-  $g.DrawArc($pen, ($x + 6.5 * $k), ($y + 6.5 * $k), (18 * $k), (18 * $k), 180, 90)
-  $g.DrawLine($pen, ($x + 15.5 * $k), ($y + 6.5 * $k), ($x + 26 * $k), ($y + 6.5 * $k))
-  # Inner lane
-  $g.DrawLine($pen, ($x + 12 * $k), ($y + 26 * $k), ($x + 12 * $k), ($y + 17 * $k))
-  $g.DrawArc($pen, ($x + 12 * $k), ($y + 13.5 * $k), (7 * $k), (7 * $k), 180, 90)
-  $g.DrawLine($pen, ($x + 15.5 * $k), ($y + 13.5 * $k), ($x + 26 * $k), ($y + 13.5 * $k))
-  $g.FillPath((New-Object System.Drawing.SolidBrush($yellow)), (New-RoundRect ($x + 4 * $k) ($y + 21.5 * $k) (11 * $k) (3.2 * $k) (1 * $k)))
+  $k = $s / 64
+  if ($withTile) { $g.FillPath((New-Object System.Drawing.SolidBrush($track)), (New-RoundRect $x $y $s $s (15 * $k))) }
+  $saved = $g.Transform
+  # SVG: translate(5 0) skewX(-12)  ->  x' = x - tan(12deg) * y + 5
+  $m = New-Object System.Drawing.Drawing2D.Matrix(1, 0, -0.21256, 1, 0, 0)
+  $g.TranslateTransform($x, $y)
+  $g.ScaleTransform($k, $k)
+  $g.TranslateTransform(5, 0)
+  $g.MultiplyTransform($m)
+  $p = New-Object System.Drawing.Drawing2D.GraphicsPath
+  $p.AddLine([single]47, [single]14.5, [single]27.5, [single]14.5)
+  $p.AddArc([single]17.25, [single]14.5, [single]20.5, [single]20.5, [single]270, [single]-180)
+  $p.AddLine([single]27.5, [single]35, [single]38.5, [single]35)
+  $p.AddArc([single]28.25, [single]35, [single]20.5, [single]20.5, [single]270, [single]180)
+  $p.AddLine([single]38.5, [single]55.5, [single]14, [single]55.5)
+  $thick = New-Object System.Drawing.Pen($yellow, 13)
+  $thick.LineJoin = 'Round'
+  $g.DrawPath($thick, $p)
+  $g.DrawPath((New-Object System.Drawing.Pen($track, 1.8)), $p)
+  $g.DrawLine((New-Object System.Drawing.Pen([System.Drawing.Color]::White, 3)), [single]47.5, [single]7.5, [single]47.5, [single]21.5)
+  $g.Transform = $saved
 }
 
 function Save-Icon([int]$size, [string]$name) {

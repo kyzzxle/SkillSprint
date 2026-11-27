@@ -1,0 +1,72 @@
+.progress-panel { margin-top: 2.5rem; display: grid; gap: 1.5rem; position: relative; }
+.progress-panel > h2 { margin: 0; }
+
+/* Medals */
+.medal-disc circle { stroke-width: 2.5; }
+.medal-disc path { stroke: none; }
+.medal-disc.open circle { fill: transparent; stroke: var(--border-strong); stroke-dasharray: 4 3; }
+.medal-disc.open path { fill: var(--surface-3); }
+.medal-disc.won path { fill: #fff; }
+.medal-disc.bronze.won circle { fill: #b06d36; stroke: #8a5124; }
+.medal-disc.silver.won circle { fill: #9aa4b7; stroke: #6f7a90; }
+.medal-disc.gold.won circle { fill: #e2ad16; stroke: #b38604; }
+.medal-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; }
+.medal {
+  display: flex; gap: 0.75rem; align-items: center; padding: 0.8rem 0.9rem; border-radius: var(--radius);
+  border: 1px solid var(--border); background: var(--surface);
+}
+.medal.won { border-color: var(--border-strong); }
+.medal div { display: grid; line-height: 1.25; }
+.medal strong { font-size: 1rem; }
+.medal span { font-size: 0.9rem; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.medal .medal-state { font-size: 0.78rem; color: var(--muted); }
+.medal.won .medal-state { color: var(--good); font-weight: 700; }
+.medal-note { margin: 0.75rem 0 0; color: var(--text-2); font-size: 0.95rem; }
+@media (max-width: 600px) {
+  .medal-row { grid-template-columns: 1fr; }
+}
+
+/* Progress chart */
+.pchart { display: grid; gap: 0.75rem; }
+.pchart-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 0.75rem 1.5rem; }
+.pchart-select { display: grid; gap: 0.25rem; font-size: 0.85rem; font-weight: 600; color: var(--muted); }
+.pchart-select select {
+  font: inherit; font-size: 0.95rem; color: var(--text); background: var(--surface); border: 1px solid var(--border-strong);
+  border-radius: 8px; padding: 0.45rem 0.6rem; min-height: 40px; max-width: 100%;
+}
+.pchart-stats { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; margin: 0; }
+.pchart-stats div { display: grid; }
+.pchart-stats dt { font-size: 0.8rem; color: var(--muted); font-weight: 600; }
+.pchart-stats dd { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.pchart-stats dd small { font-family: var(--font-sans); font-size: 0.8rem; font-weight: 600; color: var(--muted); }
+.pchart-stats dd.up { color: var(--good); }
+.pchart-stats dd.down { color: var(--bad); }
+.pchart-box { position: relative; width: 100%; touch-action: pan-y; border-radius: 8px; }
+.pchart-box svg { display: block; overflow: visible; }
+.pchart .grid { stroke: var(--border); }
+.pchart .axis { stroke: var(--border-strong); }
+.pchart .tick { fill: var(--muted); font-size: 12px; font-family: var(--font-sans); font-variant-numeric: tabular-nums; }
+.pchart .axis-label { fill: var(--muted); font-size: 12px; font-weight: 600; font-family: var(--font-sans); }
+.pchart .pline { fill: none; stroke: var(--cat); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.pchart .pdot { fill: var(--cat); stroke: var(--surface); stroke-width: 2; }
+.pchart .pdot.best { fill: var(--signal); stroke: var(--navy); stroke-width: 2; }
+.pchart .pb-label { fill: var(--text); font-family: var(--font-display); font-weight: 900; font-size: 14px; }
+.pchart .cross { stroke: var(--text); stroke-dasharray: 3 3; opacity: 0.55; }
+.pchart-tip {
+  position: absolute; top: 0; pointer-events: none; display: grid; gap: 0.2rem; justify-items: start; padding: 0.5rem 0.75rem; z-index: 2;
+  background: var(--bg-elev); border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow-lg); font-size: 0.85rem; white-space: nowrap;
+}
+.pchart-empty { display: grid; gap: 0.25rem; padding: 1.25rem; border: 1px dashed var(--border-strong); border-radius: var(--radius); color: var(--muted); }
+.pchart-empty strong { color: var(--text); }
+
+/* Medal toast */
+.medal-toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 80; width: min(440px, calc(100vw - 24px));
+  display: flex; align-items: center; gap: 0.85rem; padding: 0.85rem 0.9rem 0.85rem 1rem; border-radius: var(--radius-lg);
+  background: var(--navy); color: #fff; box-shadow: var(--shadow-lg); animation: toast-in 0.35s var(--ease) both;
+}
+.medal-toast div { display: grid; flex: 1; line-height: 1.3; }
+.medal-toast span { font-size: 0.9rem; color: #c9d2ea; }
+.medal-toast .icon-btn { color: #fff; font-size: 1.4rem; }
+.medal-toast .icon-btn:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
+@keyframes toast-in { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }

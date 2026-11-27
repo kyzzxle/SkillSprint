@@ -247,6 +247,7 @@ export interface ReviewItem {
   given: string;
   answer: string;
   explanation?: string;
+  tag?: string;
 }
 export function ReviewList({ items, title = 'Review your answers' }: { items: ReviewItem[]; title?: string }) {
   const [open, setOpen] = useState(false);

@@ -25,6 +25,10 @@ export interface QuizGameProps {
   resultsExtra?: ComponentChildren;
   /** Pause after each question to show explanations (default: !timed). */
   pauseForFeedback?: boolean;
+  /** Called after each finished round (e.g. to update a review deck). */
+  onComplete?: (summary: QuizSummary) => void;
+  /** Extra content shown on the setup screen under the settings. */
+  setupExtra?: ComponentChildren;
 }
 
 type Phase = 'setup' | 'countdown' | 'play' | 'done';
@@ -56,6 +60,7 @@ export function QuizGame(props: QuizGameProps) {
       }),
     );
     setVer((v) => v + 1);
+    props.onComplete?.(s);
     setPhase('done');
   };
 
@@ -63,6 +68,7 @@ export function QuizGame(props: QuizGameProps) {
     return (
       <SetupPanel title={props.title} subtitle={props.subtitle} instructions={props.instructions} onStart={start} best={best} bestLabel="Best for these settings">
         {props.settings}
+        {props.setupExtra}
       </SetupPanel>
     );
   }

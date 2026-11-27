@@ -3,6 +3,7 @@
 import BaseLayout from './BaseLayout.astro';
 import Icon from '../components/Icon.astro';
 import AdSlot from '../components/AdSlot.astro';
+import ProgressPanel from '../components/Progress';
 import { CATEGORIES, categoryById, gamesInCategory, GAMES, type CategoryId } from '../data/catalog';
 
 interface Faq { q: string; a: string }
@@ -77,6 +78,7 @@ const stageLabel = `${game.name} game`;
     <section class="game-stage" data-cat={cat.id} aria-label={stageLabel}>
       <slot />
     </section>
+    <ProgressPanel client:idle gameId={game.gameId} cat={cat.id} lane={laneNo} />
     {siblings.length > 0 && (
       <section class="section" style="padding-bottom:0" aria-labelledby="more-games" data-cat={cat.id}>
         <h2 id="more-games">More in lane {laneNo}</h2>

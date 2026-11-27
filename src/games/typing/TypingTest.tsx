@@ -6,9 +6,10 @@ import { defaultRng, shuffle } from '../../lib/random';
 import { recordResult, type RecordOutcome } from '../../lib/storage';
 import { Icon, ResultsPanel, Segmented, PersonalBest, StatInline } from '../../components/ui';
 import { useBest, useCountdown, usePrefs, isTypingTarget } from '../../components/ui/hooks';
-import { computeCodeStats, computeStats, generateWords, type Difficulty, type TypingStats, type WordResult } from './engine';
+import { computeCodeStats, computeStats, generateWeakWords, generateWords, isTrackedKey, type Difficulty, type TypingStats, type WordResult } from './engine';
+import { loadWeak, mergeTallies, saveWeak, weakestKeys, type Ranked, type Tally } from '../../lib/weakspots';
 
-type Mode = 'words' | 'code';
+type Mode = 'words' | 'code' | 'weak';
 type Phase = 'ready' | 'running' | 'done';
 
 const DEFAULTS = { duration: 30, difficulty: 'intermediate' as Difficulty, punctuation: false, numbers: false, mode: 'words' as Mode };
@@ -17,18 +18,34 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
   const lockedMode = preset?.mode;
   const [prefs, setPrefs] = usePrefs(lockedMode ? 'typing-code' : 'typing', DEFAULTS, lockedMode ? { mode: lockedMode } : undefined);
   const mode: Mode = lockedMode ?? prefs.mode;
+  const wordsLike = mode !== 'code';
   const gameId = mode === 'code' ? 'typing-code' : 'typing';
   const variant =
     mode === 'code'
       ? `${prefs.duration}s`
-      : `${prefs.duration}s · ${prefs.difficulty}${prefs.punctuation ? ' · punctuation' : ''}${prefs.numbers ? ' · numbers' : ''}`;
+      : mode === 'weak'
+        ? `${prefs.duration}s · weak keys`
+        : `${prefs.duration}s · ${prefs.difficulty}${prefs.punctuation ? ' · punctuation' : ''}${prefs.numbers ? ' · numbers' : ''}`;
 
   const [phase, setPhase] = useState<Phase>('ready');
   const [seed, setSeed] = useState(0); // bump to regenerate text
   const [, force] = useState(0);
   const rerender = () => force((x) => x + 1);
   const [focused, setFocused] = useState(false);
-  const [final, setFinal] = useState<{ stats: TypingStats; history: Sample[]; outcome: RecordOutcome; elapsed: number } | null>(null);
+  const [final, setFinal] = useState<{ stats: TypingStats; history: Sample[]; outcome: RecordOutcome; elapsed: number; weak: Ranked[] } | null>(null);
+  // Keys this player mistypes most (from earlier tests), used by the weak-keys drill.
+  const [weakList, setWeakList] = useState<Ranked[]>([]);
+  useEffect(() => setWeakList(weakestKeys(loadWeak().keys)), []);
+  // Per-key attempts and misses in the current test.
+  const sessionKeys = useRef<Record<string, Tally>>({});
+  const tally = (expected: string | undefined, ok: boolean) => {
+    if (!isTrackedKey(expected)) return;
+    const k = expected.toLowerCase();
+    const t = sessionKeys.current[k] ?? { n: 0, miss: 0 };
+    t.n += 1;
+    if (!ok) t.miss += 1;
+    sessionKeys.current[k] = t;
+  };
   const [bestVersion, setBestVersion] = useState(0);
   const best = useBest(gameId, variant, bestVersion);
 
@@ -62,6 +79,15 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
   const typedCode = useRef('');
   const autoFlags = useRef<boolean[]>([]);
 
+  /** Next batch of words: a weak-key drill or the normal word list. */
+  const moreWords = (count: number, prev?: string) => {
+    if (mode === 'weak') {
+      const weak = weakestKeys(loadWeak().keys);
+      if (weak.length) return generateWeakWords(defaultRng, count, weak.map((w) => w.key), prev);
+    }
+    return generateWords(defaultRng, count, prefs, prev);
+  };
+
   const resetRun = () => {
     keys.current = { correct: 0, total: 0 };
     history.current = [];
@@ -70,7 +96,8 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
     current.current = '';
     typedCode.current = '';
     autoFlags.current = [];
-    words.current = generateWords(defaultRng, 120, prefs);
+    sessionKeys.current = {};
+    words.current = moreWords(120);
     setFirstVisible(0);
     setFinal(null);
     setPhase('ready');
@@ -97,7 +124,13 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
     const outcome = recordResult({
       gameId, variant, score: wpm, display: `${wpm} WPM`, better: 'higher', url: mode === 'code' ? '/typing/code/' : '/typing/',
     });
-    setFinal({ stats: s, history: history.current.slice(), outcome, elapsed });
+    // Fold this test's per-key results into the weak-spot tracker.
+    const weakData = loadWeak();
+    weakData.keys = mergeTallies(weakData.keys, sessionKeys.current);
+    saveWeak(weakData);
+    const weak = weakestKeys(weakData.keys);
+    setWeakList(weak);
+    setFinal({ stats: s, history: history.current.slice(), outcome, elapsed, weak });
     setBestVersion((v) => v + 1);
     setPhase('done');
     inputRef.current?.blur();
@@ -138,6 +171,7 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
     for (let i = p; i < next.length; i++) {
       keys.current.total++;
       if (next[i] === target[i]) keys.current.correct++;
+      if (i < target.length) tally(target[i], next[i] === target[i]);
     }
   };
 
@@ -170,7 +204,7 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
         if (typed === target) keys.current.correct++;
         committed.current.push({ target, typed });
         if (words.current.length - committed.current.length < 60) {
-          words.current = words.current.concat(generateWords(defaultRng, 60, prefs, words.current[words.current.length - 1]));
+          words.current = words.current.concat(moreWords(60, words.current[words.current.length - 1]));
         }
       }
       current.current = prev;
@@ -198,6 +232,7 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
     keys.current.total++;
     const ok = code.text[pos] === ch;
     if (ok) keys.current.correct++;
+    tally(code.text[pos], ok);
     typedCode.current += ch;
     autoFlags.current.push(false);
     if (ch === '\n' && ok) {
@@ -271,7 +306,7 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
     if (!box || !caret || phase === 'done') return;
     let el: HTMLElement | null = null;
     let after = false;
-    if (mode === 'words') {
+    if (wordsLike) {
       const wordEl = box.querySelector<HTMLElement>(`[data-i="${committed.current.length}"]`);
       if (!wordEl) return;
       const letters = wordEl.querySelectorAll<HTMLElement>('.l');
@@ -327,6 +362,10 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
         restartLabel="Next test"
       >
         <TypingChart samples={final.history} />
+        <WeakKeysPanel
+          weak={final.weak}
+          onPractise={lockedMode ? undefined : () => { setPrefs({ mode: 'weak' }); setSeed((x) => x + 1); }}
+        />
       </ResultsPanel>
     );
   }
@@ -338,7 +377,7 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
     <div class="typing">
       <div class={`typing-config ${phase === 'running' ? 'is-running' : ''}`} inert={phase === 'running'}>
         {!lockedMode && (
-          <Segmented label="Mode" hideLabel value={mode} onChange={(v) => setPrefs({ mode: v })} options={[{ value: 'words', label: 'Words' }, { value: 'code', label: 'Code' }]} />
+          <Segmented label="Mode" hideLabel value={mode} onChange={(v) => setPrefs({ mode: v })} options={[{ value: 'words', label: 'Words' }, { value: 'weak', label: 'Weak keys' }, { value: 'code', label: 'Code' }]} />
         )}
         <Segmented label="Duration" hideLabel value={prefs.duration} onChange={(v) => setPrefs({ duration: v })}
           options={[15, 30, 60, 120].map((d) => ({ value: d, label: `${d}s` }))} />
@@ -365,6 +404,22 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
         {mode === 'code' && <StatInline k="Language" v={currentLang(code.starts, typedCode.current.length)} />}
       </div>
 
+      {mode === 'weak' && (
+        <p class="weak-banner" role="note">
+          {weakList.length ? (
+            <>
+              Drilling your weakest keys:{' '}
+              {weakList.map((w) => (
+                <kbd key={w.key}>{w.key}</kbd>
+              ))}
+              . Every word below contains at least one of them.
+            </>
+          ) : (
+            <>We don’t know your weak keys yet. Finish a couple of normal tests and they’ll appear here. Until then you get regular words.</>
+          )}
+        </p>
+      )}
+
       <div
         class={`typing-box ${mode === 'code' ? 'code' : ''} ${focused ? 'focused' : ''}`}
         ref={boxRef}
@@ -386,7 +441,7 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
           onBlur={() => setFocused(false)}
         />
         <div class="caret" ref={caretRef} aria-hidden="true" data-idle={phase !== 'running'} />
-        {mode === 'words' ? (
+        {wordsLike ? (
           <WordsView words={words.current} committed={committed.current} current={current.current} from={firstVisible} />
         ) : (
           <CodeView text={code.text} typed={typedCode.current} />
@@ -488,5 +543,44 @@ function CodeView({ text, typed }: { text: string; typed: string }) {
         );
       })}
     </pre>
+  );
+}
+
+/** Results panel: the keys this player misses most, with a one-click drill. */
+function WeakKeysPanel({ weak, onPractise }: { weak: Ranked[]; onPractise?: () => void }) {
+  if (!weak.length) {
+    return (
+      <section class="weak-panel" aria-labelledby="weak-title">
+        <h3 id="weak-title">Keys to work on</h3>
+        <p class="muted">No weak keys yet: you need a few more tests (or you’re just that accurate). We track every letter you type and spot the ones you miss most.</p>
+      </section>
+    );
+  }
+  const worst = Math.max(...weak.map((w) => w.rate));
+  return (
+    <section class="weak-panel" aria-labelledby="weak-title">
+      <h3 id="weak-title">Keys to work on</h3>
+      <p class="muted">Letters you mistype most often, across your recent tests (newer tests count more).</p>
+      <ul class="weak-keys">
+        {weak.map((w) => (
+          <li key={w.key}>
+            <kbd>{w.key}</kbd>
+            <span class="weak-bar" aria-hidden="true">
+              <span style={{ width: `${Math.max(6, (w.rate / worst) * 100)}%` }} />
+            </span>
+            <span class="weak-rate">
+              {Math.round(w.rate * 100)}% missed <span class="muted">({Math.round(w.miss)} of {Math.round(w.n)})</span>
+            </span>
+          </li>
+        ))}
+      </ul>
+      {onPractise ? (
+        <button type="button" class="btn btn-primary" onClick={onPractise}>
+          Practise these keys
+        </button>
+      ) : (
+        <a class="btn btn-secondary" href="/typing/">Practise these keys in the typing test</a>
+      )}
+    </section>
   );
 }

@@ -1,4 +1,5 @@
-import { useState } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
+import { loadWeak, mergeTallies, saveWeak, talliesFromAnswers, weakestOps, type Ranked } from '../../lib/weakspots';
 import { defaultRng, type Rng } from '../../lib/random';
 import { recordResult, type RecordOutcome } from '../../lib/storage';
 import { Countdown, ResultsPanel, ReviewList, Segmented, SetupPanel } from '../../components/ui';
@@ -26,6 +27,7 @@ export function mathToQuiz(rng: Rng, ops: MathOp[], diff: MathDifficulty, key: s
     answerText: q.answerText,
     reviewText: q.text,
     explanation: q.explanation,
+    tag: q.op,
   };
 }
 
@@ -43,6 +45,19 @@ export default function MathSprint() {
   const [ver, setVer] = useState(0);
   const [run, setRun] = useState(0);
   const best = useBest('math', variant, ver);
+  // Operations this player gets wrong most often (across rounds; newer rounds count more).
+  const [weak, setWeak] = useState<Ranked[]>([]);
+  useEffect(() => setWeak(weakestOps(loadWeak().mathOps)), []);
+
+  /** Untimed practice on the (up to two) weakest operations. */
+  const drill = () => {
+    const target = weak.slice(0, 2).map((w) => w.key);
+    if (!target.length) return;
+    setPrefs({ ops: target.join(','), timed: false });
+    setSummary(null);
+    setRun((r) => r + 1);
+    setPhase('play');
+  };
 
   const toggleOp = (op: MathOp) => {
     const next = ops.includes(op) ? ops.filter((o) => o !== op) : [...ops, op];
@@ -57,6 +72,10 @@ export default function MathSprint() {
 
   const onFinish = (s: QuizSummary) => {
     setSummary(s);
+    const data = loadWeak();
+    data.mathOps = mergeTallies(data.mathOps, talliesFromAnswers(s.review));
+    saveWeak(data);
+    setWeak(weakestOps(data.mathOps));
     setOutcome(recordResult({ gameId: 'math', variant, score: s.correct, display: `${s.correct} correct`, better: 'higher', url: '/math/' }));
     setVer((v) => v + 1);
     setPhase('done');
@@ -90,6 +109,7 @@ export default function MathSprint() {
           options={[{ value: 'easy', label: 'Easy' }, { value: 'medium', label: 'Medium' }, { value: 'hard', label: 'Hard' }]} />
         <Segmented label="Mode" value={prefs.timed ? 'timed' : 'practice'} onChange={(v) => setPrefs({ timed: v === 'timed' })}
           options={[{ value: 'timed', label: `Timed (${TIME_LIMIT}s)` }, { value: 'practice', label: `Untimed (${QUESTION_COUNT} questions)` }]} />
+        {weak.length > 0 && <WeakOps weak={weak} onDrill={drill} compact />}
       </SetupPanel>
     );
   }
@@ -128,7 +148,48 @@ export default function MathSprint() {
       onRestart={start}
       onSettings={() => setPhase('setup')}
     >
+      <RoundByOp review={s.review} />
+      {weak.length > 0 && <WeakOps weak={weak} onDrill={drill} />}
       <ReviewList items={s.review} />
     </ResultsPanel>
+  );
+}
+
+/** Accuracy for each operation in the round just played. */
+function RoundByOp({ review }: { review: { tag?: string; correct: boolean }[] }) {
+  const t = talliesFromAnswers(review);
+  const rows = ALL_OPS.filter((op) => t[op]).map((op) => ({ op, n: t[op].n, right: t[op].n - t[op].miss }));
+  if (rows.length < 2) return null;
+  return (
+    <section class="op-table" aria-labelledby="by-op">
+      <h3 id="by-op">This round by operation</h3>
+      <ul>
+        {rows.map((r) => (
+          <li key={r.op}>
+            <span>{OP_LABELS[r.op]}</span>
+            <span class="op-bar" aria-hidden="true"><span style={{ width: `${(r.right / r.n) * 100}%` }} /></span>
+            <span class="op-val">{r.right} of {r.n} right</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** The player's weakest operations overall, with a one-click drill. */
+function WeakOps({ weak, onDrill, compact }: { weak: Ranked[]; onDrill: () => void; compact?: boolean }) {
+  const names = weak.slice(0, 2).map((w) => OP_LABELS[w.key as MathOp]).join(' and ');
+  return (
+    <section class={`weak-ops ${compact ? 'compact' : ''}`} aria-label="Your weak spots">
+      <p>
+        <strong>Your weak spots:</strong>{' '}
+        {weak.slice(0, 3).map((w, i) => (
+          <span key={w.key}>{i ? ', ' : ''}{OP_LABELS[w.key as MathOp]} ({Math.round(w.rate * 100)}% wrong)</span>
+        ))}
+      </p>
+      <button type="button" class="btn btn-secondary" onClick={onDrill}>
+        Practise {names}
+      </button>
+    </section>
   );
 }

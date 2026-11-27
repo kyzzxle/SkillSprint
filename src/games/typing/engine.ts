@@ -48,6 +48,43 @@ export function generateWords(rng: Rng, count: number, opts: WordOptions, prev?:
   return out;
 }
 
+/**
+ * Words for a weak-key drill: every word contains at least one weak key, and words with more
+ * weak keys are picked more often. Falls back to normal words if nothing matches.
+ */
+export function generateWeakWords(rng: Rng, count: number, weakKeys: string[], prev?: string): string[] {
+  const weak = new Set(weakKeys.map((k) => k.toLowerCase()));
+  const all = Array.from(new Set([...WORDS_BEGINNER, ...WORDS_INTERMEDIATE, ...WORDS_ADVANCED]));
+  const weighted: { w: string; weight: number }[] = [];
+  for (const w of all) {
+    const hits = w.split('').filter((ch) => weak.has(ch)).length;
+    if (hits > 0 && w.length <= 10) weighted.push({ w, weight: hits * hits });
+  }
+  if (!weighted.length) return generateWords(rng, count, { difficulty: 'intermediate', punctuation: false, numbers: false }, prev);
+  const total = weighted.reduce((a, x) => a + x.weight, 0);
+  const out: string[] = [];
+  let last = prev ?? '';
+  for (let i = 0; i < count; i++) {
+    let w = last;
+    for (let tries = 0; tries < 5 && w === last; tries++) {
+      let r = rng() * total;
+      for (const x of weighted) {
+        r -= x.weight;
+        if (r <= 0) {
+          w = x.w;
+          break;
+        }
+      }
+    }
+    out.push(w);
+    last = w;
+  }
+  return out;
+}
+
+/** Letters only: the keys tracked for weak-spot drills. */
+export const isTrackedKey = (ch: string | undefined): ch is string => !!ch && /^[a-z]$/i.test(ch);
+
 export interface WordResult {
   target: string;
   typed: string;

@@ -91,6 +91,7 @@ const lanes = CATEGORIES.map((c, i) => ({
 <script>
   import { load } from '../lib/storage';
   import { SCORE_RULES } from '../data/catalog';
+  import { allMedals, MEDAL_NAMES } from '../lib/medals';
 
   // Fill each lane with the visitor's personal best from local storage.
   const data = load();
@@ -113,6 +114,24 @@ const lanes = CATEGORIES.map((c, i) => ({
       el.append(flag, value);
     }
   });
+  // Medals earned in each lane: three dots (bronze, silver, gold), filled when won.
+  const medals = allMedals(data.bests);
+  document.querySelectorAll<HTMLElement>('.lane[data-cat]').forEach((lane) => {
+    const level = medals[lane.dataset.cat as keyof typeof medals];
+    const pb = lane.querySelector('.lane-pb');
+    if (!pb || level === undefined || !pb.querySelector('.pb-flag')) return;
+    const wrap = document.createElement('span');
+    wrap.className = 'lane-medals';
+    wrap.setAttribute('aria-label', level ? `${MEDAL_NAMES[level]} medal` : 'No medal yet');
+    wrap.setAttribute('role', 'img');
+    ['bronze', 'silver', 'gold'].forEach((m, i) => {
+      const dot = document.createElement('i');
+      dot.className = `m ${m} ${level > i ? 'on' : ''}`;
+      wrap.append(dot);
+    });
+    pb.append(wrap);
+  });
+
   // Paint the lane lines once per visit.
   try {
     if (!sessionStorage.getItem('ss-track-painted')) {

@@ -6,6 +6,7 @@ import { iconSvg } from '../data/icons';
 import { localDateKey, formatDateKey, timeAgo } from '../lib/date';
 import { dailyStreak, load, onStorageChange, type StoreData } from '../lib/storage';
 import { prettyVariant } from '../lib/format';
+import { allMedals } from '../lib/medals';
 import { EmptyState } from './ui';
 
 function useStore(): StoreData | null {
@@ -118,6 +119,19 @@ export function SeasonBoard() {
       <p class="muted" style={{ margin: '0 0 1.5rem', fontSize: '0.95rem' }}>
         {!data ? '' : tried.size === 10 ? 'Every lane run. Now beat your personal bests.' : tried.size === 0 ? 'Run any lane to start your season.' : `Next up: ${CATEGORIES.find((c) => !tried.has(c.id))?.name}.`}
       </p>
+      {data && (() => {
+        const levels = Object.values(allMedals(data.bests));
+        const count = (l: number) => levels.filter((x) => x >= l).length;
+        return (
+          <p class="season-medals" aria-label="Medals won">
+            <strong>{count(1) + count(2) + count(3)} of 30 medals</strong>
+            <span><i style={{ background: '#e2ad16' }} /> {count(3)} gold</span>
+            <span><i style={{ background: '#9aa4b7' }} /> {count(2)} silver</span>
+            <span><i style={{ background: '#b06d36' }} /> {count(1)} bronze</span>
+
+          </p>
+        );
+      })()}
       {data && pbs.length > 0 && (
         <table class="data">
           <caption class="sr-only">Personal bests by lane</caption>

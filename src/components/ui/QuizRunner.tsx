@@ -15,6 +15,8 @@ export interface QuizChoice {
 
 export interface QuizQuestion {
   key: string;
+  /** Optional category for weak-spot tracking (e.g. a maths operation or shortcut id). */
+  tag?: string;
   label?: ComponentChildren;
   prompt: ComponentChildren;
   promptClass?: string;
@@ -128,6 +130,7 @@ export function QuizRunner(props: QuizRunnerProps) {
       given: givenText,
       answer: question.answerText,
       explanation: question.explanation,
+      tag: question.tag,
     });
     setPhase('feedback');
     if (!pause) {

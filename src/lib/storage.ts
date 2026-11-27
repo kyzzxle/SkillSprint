@@ -5,6 +5,7 @@ import { addDays } from './date';
 
 const KEY = 'skillsprint:data:v1';
 export const THEME_KEY = 'skillsprint:theme';
+export const WEAK_KEY = 'skillsprint:weak:v1';
 export const STORAGE_EVENT = 'skillsprint:storage';
 const HISTORY_LIMIT = 300;
 
@@ -167,6 +168,7 @@ export function dailyStreak(daily: Record<string, DailyResult>, today: string): 
 export function resetAll(): void {
   try {
     localStorage.removeItem(KEY);
+    localStorage.removeItem(WEAK_KEY);
   } catch {
     /* ignore */
   }
