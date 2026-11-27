@@ -1,7 +1,8 @@
 // "Your progress" panel shown under every game: lane medals, a chart of results over time,
-// and a toast when a new medal is earned. Everything comes from this browser's saved results.
+// and a full-screen celebration when a new medal is earned. Everything comes from this browser's saved results.
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
-import { SCORE_RULES, categoryById, type CategoryId } from '../data/catalog';
+import { CATEGORIES, SCORE_RULES, categoryById, type CategoryId } from '../data/catalog';
+import { MedalCelebration, type Celebration } from './MedalCelebration';
 import { load, onStorageChange, type HistoryEntry, type StoreData } from '../lib/storage';
 import { MEDAL_NAMES, bestFor, formatTarget, medalLevel, nextMedal, ruleFor, type MedalLevel } from '../lib/medals';
 import { prettyVariant } from '../lib/format';
@@ -44,18 +45,24 @@ export default function ProgressPanel({ gameId, cat, lane }: { gameId: string; c
   const medalScore = data ? bestFor(rule, data.bests) : null;
   const level = medalLevel(rule, medalScore);
 
-  // Toast when the lane medal goes up while the page is open.
+  // Celebrate when the lane medal goes up while the page is open (i.e. right after a result).
   const prevLevel = useRef<MedalLevel | null>(null);
-  const [toast, setToast] = useState<MedalLevel | null>(null);
+  const [party, setParty] = useState<Celebration | null>(null);
   useEffect(() => {
     if (!data) return;
-    if (prevLevel.current !== null && level > prevLevel.current) {
-      setToast(level);
-      const t = window.setTimeout(() => setToast(null), 7000);
-      prevLevel.current = level;
-      return () => window.clearTimeout(t);
-    }
+    const from = prevLevel.current;
     prevLevel.current = level;
+    if (from === null || level <= from || medalScore === null) return;
+    const nextCat = CATEGORIES[lane % CATEGORIES.length];
+    setParty({
+      level,
+      from,
+      lane,
+      laneName: catName,
+      scoreText: formatTarget(rule, medalScore),
+      nextText: level < 3 ? formatTarget(rule, rule.tiers[level as 1 | 2]) : null,
+      nextLane: { name: nextCat.name, url: nextCat.url },
+    });
   }, [data, level]);
 
   const next = nextMedal(rule, medalScore);
@@ -95,16 +102,7 @@ export default function ProgressPanel({ gameId, cat, lane }: { gameId: string; c
 
       <ProgressChart gameId={gameId} history={data?.history ?? null} />
 
-      {toast !== null && (
-        <div class={`medal-toast ${['', 'bronze', 'silver', 'gold'][toast]}`} role="status">
-          <MedalDisc level={toast} tier={toast as 1 | 2 | 3} size={44} />
-          <div>
-            <strong>{MEDAL_NAMES[toast]} medal in {catName}!</strong>
-            <span>{toast < 3 ? `Next: ${MEDAL_NAMES[toast + 1]} at ${formatTarget(rule, rule.tiers[toast as 1 | 2])}.` : 'That’s the top medal in this lane.'}</span>
-          </div>
-          <button type="button" class="icon-btn" aria-label="Dismiss" onClick={() => setToast(null)}>×</button>
-        </div>
-      )}
+      {party && <MedalCelebration key={`${party.from}-${party.level}`} c={party} onClose={() => setParty(null)} />}
     </section>
   );
 }
