@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import './typing.css';
+import { TypingChart, type Sample } from './TypingChart';
 import { CODE_SNIPPETS } from '../../data/typing';
 import { defaultRng, shuffle } from '../../lib/random';
 import { recordResult, type RecordOutcome } from '../../lib/storage';
@@ -27,7 +28,7 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
   const [, force] = useState(0);
   const rerender = () => force((x) => x + 1);
   const [focused, setFocused] = useState(false);
-  const [final, setFinal] = useState<{ stats: TypingStats; history: number[]; outcome: RecordOutcome; elapsed: number } | null>(null);
+  const [final, setFinal] = useState<{ stats: TypingStats; history: Sample[]; outcome: RecordOutcome; elapsed: number } | null>(null);
   const [bestVersion, setBestVersion] = useState(0);
   const best = useBest(gameId, variant, bestVersion);
 
@@ -36,7 +37,9 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
   const caretRef = useRef<HTMLDivElement>(null);
   const keys = useRef({ correct: 0, total: 0 });
   const startedAt = useRef(0);
-  const history = useRef<number[]>([]);
+  const history = useRef<Sample[]>([]);
+  // Keystroke totals at the previous sample, used for per-second raw speed and errors.
+  const lastSample = useRef({ t: 0, total: 0, wrong: 0 });
 
   // ---- words mode data ----
   const words = useRef<string[]>([]);
@@ -62,6 +65,7 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
   const resetRun = () => {
     keys.current = { correct: 0, total: 0 };
     history.current = [];
+    lastSample.current = { t: 0, total: 0, wrong: 0 };
     committed.current = [];
     current.current = '';
     typedCode.current = '';
@@ -87,6 +91,8 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
     if (phase !== 'running') return;
     const elapsed = elapsedOverride ?? prefs.duration * 1000;
     const s = stats(elapsed);
+    // Close the chart with a final (possibly partial) second.
+    if (elapsed - lastSample.current.t > 250) takeSample(elapsed);
     const wpm = Math.round(s.wpm);
     const outcome = recordResult({
       gameId, variant, score: wpm, display: `${wpm} WPM`, better: 'higher', url: mode === 'code' ? '/typing/code/' : '/typing/',
@@ -102,9 +108,24 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
   // Per-second WPM samples for the results chart.
   useEffect(() => {
     if (phase !== 'running') return;
-    const id = window.setInterval(() => history.current.push(Math.round(stats(elapsedMs()).wpm)), 1000);
+    const id = window.setInterval(() => takeSample(elapsedMs()), 1000);
     return () => window.clearInterval(id);
   }, [phase]);
+
+  /** One chart point: cumulative net WPM, raw WPM and incorrect keystrokes during the interval just ended. */
+  const takeSample = (elapsed: number) => {
+    const prev = lastSample.current;
+    const total = keys.current.total;
+    const wrong = keys.current.total - keys.current.correct;
+    const minutes = Math.max(elapsed - prev.t, 1) / 60000;
+    history.current.push({
+      t: elapsed / 1000,
+      wpm: stats(elapsed).wpm,
+      raw: (total - prev.total) / 5 / minutes,
+      errors: wrong - prev.wrong,
+    });
+    lastSample.current = { t: elapsed, total, wrong };
+  };
 
   const start = () => {
     startedAt.current = performance.now();
@@ -305,11 +326,7 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
         onRestart={() => setSeed((x) => x + 1)}
         restartLabel="Next test"
       >
-        <WpmChart data={final.history} />
-        <p class="muted" style={{ fontSize: '0.88rem', textAlign: 'center' }}>
-          WPM counts the characters of correctly typed words (5 characters = 1 word). Accuracy counts every keystroke, including
-          mistakes you corrected.
-        </p>
+        <TypingChart samples={final.history} />
       </ResultsPanel>
     );
   }
@@ -471,21 +488,5 @@ function CodeView({ text, typed }: { text: string; typed: string }) {
         );
       })}
     </pre>
-  );
-}
-
-function WpmChart({ data }: { data: number[] }) {
-  if (data.length < 2) return null;
-  const w = 600, h = 120, pad = 8;
-  const max = Math.max(10, ...data);
-  const pts = data.map((v, i) => `${pad + (i / (data.length - 1)) * (w - pad * 2)},${h - pad - (v / max) * (h - pad * 2)}`).join(' ');
-  return (
-    <figure style={{ margin: 0 }}>
-      <svg viewBox={`0 0 ${w} ${h}`} width="100%" height="120" role="img" aria-label={`WPM over time, peaking at ${Math.max(...data)} WPM`}>
-        <line x1={pad} x2={w - pad} y1={h - pad} y2={h - pad} stroke="var(--border)" />
-        <polyline points={pts} fill="none" stroke="var(--cat)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
-      </svg>
-      <figcaption class="muted" style={{ fontSize: '0.8rem', textAlign: 'center' }}>WPM sampled every second (peak {Math.max(...data)})</figcaption>
-    </figure>
   );
 }

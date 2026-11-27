@@ -258,3 +258,19 @@ describe('reference data', () => {
     }
   });
 });
+
+import { niceScale } from '../src/games/typing/TypingChart';
+describe('typing chart scale', () => {
+  it('rounds the WPM axis up to clean tick steps', () => {
+    expect(niceScale(72)).toEqual({ max: 80, step: 20 });
+    expect(niceScale(43)).toEqual({ max: 50, step: 10 });
+    expect(niceScale(3)).toEqual({ max: 10, step: 5 });
+    expect(niceScale(131)).toEqual({ max: 150, step: 50 });
+    for (const v of [12, 57, 88, 104, 160, 240]) {
+      const s = niceScale(v);
+      expect(s.max).toBeGreaterThanOrEqual(v);
+      expect(s.max % s.step).toBe(0);
+      expect(s.max / s.step).toBeLessThanOrEqual(8);
+    }
+  });
+});

@@ -1,0 +1,44 @@
+/* Typing results chart. Series colours validated with the dataviz palette checks (light + dark). */
+.tchart {
+  --c-wpm: #7357f6;
+  --c-raw: #c26a00;
+  margin: 0; display: grid; gap: 0.6rem;
+}
+:root[data-theme='dark'] .tchart { --c-wpm: #7f69f2; --c-raw: #c98019; }
+.tchart-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.4rem 1.25rem; }
+.tchart-title { font-weight: 700; font-size: 1.05rem; }
+.tchart-legend { display: flex; flex-wrap: wrap; gap: 0.35rem 1rem; font-size: 0.85rem; color: var(--text-2); }
+.tchart-legend span, .tchart-tip span { display: inline-flex; align-items: center; gap: 0.4rem; }
+.sw { display: inline-block; width: 18px; height: 0; border-top: 2px solid; font-style: normal; }
+.sw.wpm { border-color: var(--c-wpm); }
+.sw.raw { border-top: 2px dashed var(--c-raw); }
+.sw.err { border: 0; width: auto; height: auto; color: var(--bad); font-weight: 800; line-height: 1; }
+
+.tchart-box { position: relative; width: 100%; touch-action: pan-y; border-radius: 8px; }
+.tchart-box svg { display: block; overflow: visible; }
+.tchart .grid { stroke: var(--border); stroke-width: 1; }
+.tchart .axis { stroke: var(--border-strong); stroke-width: 1; }
+.tchart .tick { fill: var(--muted); font-size: 12px; font-family: var(--font-sans); font-variant-numeric: tabular-nums; }
+.tchart .axis-label, .tchart .strip-label { fill: var(--muted); font-size: 12px; font-family: var(--font-sans); font-weight: 600; }
+.tchart .line { fill: none; stroke-width: 2.25; stroke-linejoin: round; stroke-linecap: round; }
+.tchart .line.wpm { stroke: var(--c-wpm); stroke-width: 2.75; }
+.tchart .line.raw { stroke: var(--c-raw); stroke-dasharray: 5 4; }
+.tchart .end, .tchart .dot { stroke: var(--surface); stroke-width: 2; }
+.tchart .wpm.end, .tchart .dot.wpm { fill: var(--c-wpm); }
+.tchart .raw.end, .tchart .dot.raw { fill: var(--c-raw); }
+.tchart .end-label { fill: var(--text); font-size: 13px; font-weight: 700; font-family: var(--font-sans); }
+.tchart .end-label.muted { fill: var(--text-2); font-weight: 600; }
+.tchart .err-bar { fill: var(--bad); opacity: 0.85; }
+.tchart .err-x { fill: var(--bad); font-size: 13px; font-weight: 800; }
+.tchart .cross line { stroke: var(--text); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0.6; }
+.tchart-tip {
+  position: absolute; top: 0; pointer-events: none; z-index: 2;
+  display: grid; gap: 0.15rem; padding: 0.55rem 0.75rem; min-width: 150px;
+  background: var(--bg-elev); color: var(--text); border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow-lg);
+  font-size: 0.85rem; font-variant-numeric: tabular-nums;
+}
+.tchart-tip strong { font-size: 0.9rem; }
+.tchart-note { margin: 0; font-size: 0.85rem; color: var(--muted); }
+.tchart-table summary { cursor: pointer; font-weight: 600; font-size: 0.9rem; color: var(--link); }
+.tchart-table .table-wrap { max-height: 260px; overflow: auto; margin-top: 0.5rem; }
+.tchart-table td.num { font-size: 1rem; }
