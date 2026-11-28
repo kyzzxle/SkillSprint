@@ -113,3 +113,19 @@ describe('daily challenge', () => {
     }
   });
 });
+
+import { comboMessage } from '../src/components/ui/QuizRunner';
+describe('combo streaks', () => {
+  it('calls out milestones only', () => {
+    expect(comboMessage(1)).toBeNull();
+    expect(comboMessage(2)).toBeNull();
+    expect(comboMessage(3)).toBe('3 in a row!');
+    expect(comboMessage(4)).toBeNull();
+    expect(comboMessage(5)).toMatch(/^5 in a row/);
+    expect(comboMessage(10)).toMatch(/^10 in a row/);
+    expect(comboMessage(15)).toMatch(/^15 in a row/);
+    expect(comboMessage(20)).toMatch(/^20 in a row/);
+    expect(comboMessage(21)).toBeNull();
+    expect(comboMessage(25)).toMatch(/^25 in a row/);
+  });
+});

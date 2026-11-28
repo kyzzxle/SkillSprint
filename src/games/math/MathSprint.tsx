@@ -143,6 +143,7 @@ export default function MathSprint() {
         { k: 'Answered', v: s.answered },
         { k: 'Accuracy', v: `${acc}%` },
         { k: 'Time', v: formatDuration(s.durationMs) },
+        { k: 'Best streak', v: s.bestStreak },
         { k: 'Avg / question', v: s.answered ? `${(s.durationMs / s.answered / 1000).toFixed(1)}s` : '—' },
       ]}
       onRestart={start}

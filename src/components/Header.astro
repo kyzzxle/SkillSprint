@@ -34,6 +34,10 @@ const info = [
       <Icon name="moon" class="i-moon" />
       <Icon name="sun" class="i-sun" />
     </button>
+    <button type="button" class="icon-btn sound-toggle" id="sound-toggle" aria-label="Sound effects" aria-pressed="true" title="Sound effects on / off">
+      <Icon name="sound" class="i-sound" />
+      <Icon name="mute" class="i-mute" />
+    </button>
     <details class="menu" id="site-menu">
       <summary class="icon-btn" aria-label="Open menu"><Icon name="menu" /></summary>
       <div class="menu-panel">
@@ -51,6 +55,21 @@ const info = [
   </div>
 </header>
 <script>
+  import { setSoundOn, soundOn, sfx } from '../lib/sound';
+  // Sound on/off (sound effects + vibration), remembered in this browser.
+  const soundBtn = document.getElementById('sound-toggle');
+  const syncSound = () => {
+    const on = soundOn();
+    soundBtn?.setAttribute('aria-pressed', String(on));
+    soundBtn?.classList.toggle('is-off', !on);
+    soundBtn?.setAttribute('title', on ? 'Sound effects on (click to mute)' : 'Sound effects off (click to turn on)');
+  };
+  syncSound();
+  soundBtn?.addEventListener('click', () => {
+    setSoundOn(!soundOn());
+    syncSound();
+    sfx.blip(4);
+  });
   // Theme toggle (the initial theme is applied by an inline script in <head> to avoid a flash).
   const btn = document.getElementById('theme-toggle');
   const syncLabel = () => btn?.setAttribute('aria-pressed', String(document.documentElement.dataset.theme === 'dark'));

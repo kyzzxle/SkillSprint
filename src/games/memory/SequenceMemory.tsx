@@ -4,6 +4,7 @@ import { recordResult, type RecordOutcome } from '../../lib/storage';
 import { ResultsPanel, SetupPanel, StatInline } from '../../components/ui';
 import { useBest, useKeydown, isTypingTarget } from '../../components/ui/hooks';
 import { extendSequence, flashTiming } from './logic';
+import { sfx } from '../../lib/sound';
 import './memory.css';
 
 type Phase = 'setup' | 'show' | 'input' | 'between' | 'done';
@@ -34,7 +35,10 @@ export default function SequenceMemory() {
     const { on, off } = flashTiming(s.length);
     let t = 600;
     s.forEach((tile) => {
-      later(() => setLit(tile), t);
+      later(() => {
+        setLit(tile);
+        sfx.tile(tile);
+      }, t);
       later(() => setLit(null), t + on);
       t += on + off;
     });
@@ -58,11 +62,13 @@ export default function SequenceMemory() {
     if (phase !== 'input') return;
     if (seq[pos] !== tile) {
       setWrong(tile);
+      sfx.wrong();
       setPhase('between');
       later(() => finish(seq), 900);
       return;
     }
     setLit(tile);
+    sfx.tile(tile);
     later(() => setLit((l) => (l === tile ? null : l)), 180);
     if (pos + 1 === seq.length) {
       setPhase('between');

@@ -5,6 +5,17 @@ import type { ComponentChildren } from 'preact';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { useCountdown, useKeydown, isTypingTarget } from './hooks';
 import { Icon, Progress, StatInline, type ReviewItem } from './index';
+import { sfx } from '../../lib/sound';
+
+/** Streak lengths that trigger a combo call-out. */
+export function comboMessage(streak: number): string | null {
+  if (streak === 3) return '3 in a row!';
+  if (streak === 5) return '5 in a row! On fire';
+  if (streak === 10) return '10 in a row! Unstoppable';
+  if (streak === 15) return '15 in a row! Legendary';
+  if (streak >= 20 && streak % 5 === 0) return `${streak} in a row! Incredible`;
+  return null;
+}
 
 export interface QuizChoice {
   id: string;
@@ -39,6 +50,8 @@ export interface QuizSummary {
   durationMs: number;
   review: ReviewItem[];
   answers: boolean[];
+  /** longest run of correct answers */
+  bestStreak: number;
 }
 
 export interface QuizRunnerProps {
@@ -67,6 +80,10 @@ export function QuizRunner(props: QuizRunnerProps) {
   const [input, setInput] = useState('');
   const [lastCorrect, setLastCorrect] = useState(false);
   const [correct, setCorrect] = useState(0);
+  // Combo streak: consecutive correct answers, with call-outs at milestones.
+  const [streak, setStreak] = useState(0);
+  const bestStreakRef = useRef(0);
+  const [pop, setPop] = useState<{ text: string; kind: 'up' | 'lost'; n: number } | null>(null);
   const reviewRef = useRef<ReviewItem[]>([]);
   const answersRef = useRef<boolean[]>([]);
   const startRef = useRef(performance.now());
@@ -87,12 +104,20 @@ export function QuizRunner(props: QuizRunnerProps) {
       durationMs: performance.now() - startRef.current,
       review: reviewRef.current,
       answers,
+      bestStreak: bestStreakRef.current,
     });
   };
 
   const { remaining } = useCountdown((props.timeLimitSec ?? 0) * 1000, timed, finish);
 
   useEffect(() => () => window.clearTimeout(advanceTimer.current), []);
+
+  // Combo call-outs disappear after a moment (a timer, so they still show when animations are off).
+  useEffect(() => {
+    if (!pop) return;
+    const t = window.setTimeout(() => setPop(null), 1600);
+    return () => window.clearTimeout(t);
+  }, [pop]);
 
   // Focus management for each new question.
   useEffect(() => {
@@ -122,7 +147,24 @@ export function QuizRunner(props: QuizRunnerProps) {
     if (phase !== 'answering' || finishedRef.current) return;
     setSelected(given);
     setLastCorrect(ok);
-    if (ok) setCorrect((c) => c + 1);
+    if (ok) {
+      setCorrect((c) => c + 1);
+      const next = streak + 1;
+      setStreak(next);
+      bestStreakRef.current = Math.max(bestStreakRef.current, next);
+      const msg = comboMessage(next);
+      if (msg) {
+        setPop({ text: msg, kind: 'up', n: answersRef.current.length });
+        sfx.combo(next);
+      } else sfx.correct();
+    } else {
+      if (streak >= 3) {
+        setPop({ text: `Streak ended at ${streak}`, kind: 'lost', n: answersRef.current.length });
+        sfx.streakLost();
+      } else setPop(null);
+      sfx.wrong();
+      setStreak(0);
+    }
     answersRef.current.push(ok);
     reviewRef.current.push({
       correct: ok,
@@ -178,6 +220,13 @@ export function QuizRunner(props: QuizRunnerProps) {
           )}
           <StatInline k={props.scoreLabel ?? 'Score'} v={correct} />
           <StatInline k="Accuracy" v={answered ? `${Math.round((correct / answered) * 100)}%` : '—'} />
+          <div class={`stat-inline combo-meter ${streak >= 3 ? 'hot' : ''}`} aria-label={`Streak: ${streak} in a row`}>
+            <span class="k">Streak</span>
+            <span class="v">
+              {streak >= 2 && <Icon name="flame" class="combo-flame" />}
+              {streak}
+            </span>
+          </div>
         </div>
         <div class="btn-row">
           {question.kind === 'input' && phase === 'answering' && (
@@ -197,6 +246,14 @@ export function QuizRunner(props: QuizRunnerProps) {
       ) : (
         <Progress value={index + (phase === 'feedback' ? 1 : 0)} max={props.total ?? 1} label="Quiz progress" />
       )}
+
+      <div class="combo-pop-slot" aria-live="polite">
+        {pop && (
+          <span key={pop.n} class={`combo-pop ${pop.kind}`}>
+            {pop.kind === 'up' && <Icon name="flame" />} {pop.text}
+          </span>
+        )}
+      </div>
 
       <div class="quiz-prompt" ref={regionRef} tabIndex={-1} aria-live="polite" style={{ outline: 'none' }}>
         {question.label && <div class="q-label">{question.label}</div>}

@@ -2,6 +2,7 @@
 // a ribbon in the brand colours, and a confetti burst. Respects reduced-motion settings.
 import { useEffect, useRef } from 'preact/hooks';
 import { launchConfetti } from '../lib/confetti';
+import { sfx } from '../lib/sound';
 import { MEDAL_NAMES, type MedalLevel } from '../lib/medals';
 import { prefersReducedMotion } from './ui/hooks';
 import './medal-celebration.css';
@@ -92,10 +93,14 @@ export function MedalCelebration({ c, onClose }: { c: Celebration; onClose: () =
     const d = dialogRef.current;
     if (!d) return;
     if (!d.open) d.showModal();
-    if (prefersReducedMotion()) return;
+    if (prefersReducedMotion()) {
+      sfx.medal(tier);
+      return;
+    }
     let stop: (() => void) | undefined;
     // Fire when the medal lands (after its drop-in animation).
     const t = window.setTimeout(() => {
+      sfx.medal(tier);
       const canvas = canvasRef.current;
       const r = medalRef.current?.getBoundingClientRect();
       if (!canvas || !r) return;

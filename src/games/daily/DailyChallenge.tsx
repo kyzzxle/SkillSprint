@@ -87,6 +87,7 @@ export default function DailyChallenge() {
           { k: 'Current streak', v: `${streak.current} day${streak.current === 1 ? '' : 's'}` },
           { k: 'Best streak', v: `${streak.best} day${streak.best === 1 ? '' : 's'}` },
           { k: 'Time', v: formatDuration(summary.durationMs) },
+          { k: 'Longest run', v: `${summary.bestStreak} in a row` },
         ]}
         onRestart={() => begin(true)}
         restartLabel="Practise again"

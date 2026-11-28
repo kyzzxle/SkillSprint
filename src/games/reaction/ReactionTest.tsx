@@ -3,6 +3,7 @@ import { recordResult, type RecordOutcome } from '../../lib/storage';
 import { Icon, PersonalBest, ResultsPanel, Segmented, Instructions } from '../../components/ui';
 import { useBest, usePrefs } from '../../components/ui/hooks';
 import { randomDelay, summarize } from './stats';
+import { sfx } from '../../lib/sound';
 import './reaction.css';
 
 type State = 'idle' | 'waiting' | 'go' | 'early' | 'shown' | 'done';
@@ -61,6 +62,7 @@ export default function ReactionTest() {
     if (s === 'waiting') {
       window.clearTimeout(timer.current);
       setEarly((n) => n + 1);
+      sfx.wrong();
       go('early');
       return;
     }
@@ -80,6 +82,7 @@ export default function ReactionTest() {
         go('done');
       } else {
         go('shown');
+        sfx.blip(rt < 250 ? 6 : rt < 320 ? 4 : 1);
       }
     }
   };

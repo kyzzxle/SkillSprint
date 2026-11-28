@@ -65,8 +65,12 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
   const [firstVisible, setFirstVisible] = useState(0);
 
   // ---- code mode data ----
+  // Snippets keep their listed order until the component has mounted, so the server-rendered HTML
+  // matches the first client render; after that each test shuffles them.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const code = useMemo(() => {
-    const order = shuffle(defaultRng, CODE_SNIPPETS);
+    const order = mounted ? shuffle(defaultRng, CODE_SNIPPETS) : CODE_SNIPPETS;
     let text = '';
     const starts: { at: number; lang: string }[] = [];
     for (const s of order) {
@@ -75,7 +79,7 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
       text += s.code;
     }
     return { text, starts };
-  }, [seed, mode]);
+  }, [seed, mode, mounted]);
   const typedCode = useRef('');
   const autoFlags = useRef<boolean[]>([]);
 

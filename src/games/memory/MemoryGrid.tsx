@@ -4,6 +4,7 @@ import { recordResult, type RecordOutcome } from '../../lib/storage';
 import { ResultsPanel, SetupPanel, StatInline } from '../../components/ui';
 import { useBest } from '../../components/ui/hooks';
 import { gridForLevel, pickTiles } from './logic';
+import { sfx } from '../../lib/sound';
 import './memory.css';
 
 type Phase = 'setup' | 'show' | 'input' | 'pause' | 'done';
@@ -59,6 +60,7 @@ export default function MemoryGrid() {
     if (phase !== 'input' || hits.includes(i) || misses.includes(i)) return;
     if (targets.includes(i)) {
       const h = [...hits, i];
+      sfx.blip(h.length - 1);
       setHits(h);
       if (h.length === targets.length) {
         setPhase('pause');
@@ -67,6 +69,7 @@ export default function MemoryGrid() {
       }
     } else {
       const m = [...misses, i];
+      sfx.wrong();
       setMisses(m);
       if (m.length >= MISSES_PER_LEVEL) {
         const left = lives - 1;

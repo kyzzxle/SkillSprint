@@ -5,6 +5,7 @@ import { Icon, Progress, ResultsPanel, Segmented, SetupPanel, StatInline } from 
 import { useBest, useCountdown, usePrefs } from '../../components/ui/hooks';
 import { colorDistance, hslToRgb, matchAccuracy, randomColor, rgbText, rgbToHex, type RGB } from './color';
 import './color.css';
+import { sfx } from '../../lib/sound';
 
 type Phase = 'setup' | 'play' | 'reveal' | 'done';
 const ROUNDS = 5;
@@ -48,6 +49,8 @@ export default function ColorMatch() {
   const submit = () => {
     const dE = colorDistance(target, guess);
     setResults((r) => [...r, { target, guess, dE, acc: matchAccuracy(dE) }]);
+    if (matchAccuracy(dE) >= 85) sfx.correct();
+    else sfx.blip(2);
     setPhase('reveal');
   };
 

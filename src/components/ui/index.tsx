@@ -6,6 +6,7 @@ import { ADS } from '../../config/site';
 import type { RecordOutcome, ScoreRecord } from '../../lib/storage';
 import { prefersReducedMotion } from './hooks';
 import { prettyVariant } from '../../lib/format';
+import { sfx } from '../../lib/sound';
 
 export function Icon({ name, class: cls }: { name: string; class?: string }) {
   return <span class={`icon ${cls ?? ''}`} dangerouslySetInnerHTML={{ __html: iconSvg(name) }} />;
@@ -132,9 +133,11 @@ export function Countdown({ from = 3, onDone }: { from?: number; onDone: () => v
       return () => window.clearTimeout(t);
     }
     if (n <= 0) {
+      sfx.go();
       doneRef.current();
       return;
     }
+    sfx.tick();
     const t = window.setTimeout(() => setN((x) => x - 1), 700);
     return () => window.clearTimeout(t);
   }, [n]);
@@ -195,6 +198,9 @@ export function ResultsPanel(props: {
   const headRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     headRef.current?.focus({ preventScroll: false });
+    // Results sound: a fanfare for a new personal best, otherwise a short chime.
+    if (props.outcome?.isBest) sfx.pb();
+    else sfx.finish();
   }, []);
   const prev = props.outcome?.previous;
   return (

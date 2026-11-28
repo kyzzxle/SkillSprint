@@ -4,6 +4,7 @@ import { recordResult, type RecordOutcome } from '../../lib/storage';
 import { Icon, Progress, ResultsPanel, SetupPanel, StatInline } from '../../components/ui';
 import { useBest, useCountdown } from '../../components/ui/hooks';
 import { numberShowTime, randomNumber } from './logic';
+import { sfx } from '../../lib/sound';
 import './memory.css';
 
 type Phase = 'setup' | 'show' | 'input' | 'feedback' | 'done';
@@ -45,6 +46,8 @@ export default function NumberMemory() {
     if (phase !== 'input') return;
     const correct = answer.trim() === num;
     setOk(correct);
+    if (correct) sfx.correct();
+    else sfx.wrong();
     setPhase('feedback');
   };
 

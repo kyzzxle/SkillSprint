@@ -86,7 +86,7 @@ export function QuizGame(props: QuizGameProps) {
       />
     );
   }
-  const s = summary ?? { correct: 0, answered: 0, durationMs: 0, review: [], answers: [] };
+  const s = summary ?? { correct: 0, answered: 0, durationMs: 0, review: [], answers: [], bestStreak: 0 };
   const acc = s.answered ? Math.round((s.correct / s.answered) * 100) : 0;
   return (
     <ResultsPanel
@@ -99,6 +99,7 @@ export function QuizGame(props: QuizGameProps) {
         { k: 'Answered', v: s.answered },
         { k: 'Accuracy', v: `${acc}%` },
         { k: 'Time', v: formatDuration(s.durationMs) },
+        { k: 'Best streak', v: s.bestStreak },
       ]}
       onRestart={start}
       onSettings={() => setPhase('setup')}
