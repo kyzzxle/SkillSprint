@@ -1,10 +1,10 @@
-// "Your progress" panel shown under every game: lane medals, a chart of results over time,
+// "Your progress" panel shown under every game: the game's medals, a chart of results over time,
 // and a full-screen celebration when a new medal is earned. Everything comes from this browser's saved results.
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
-import { CATEGORIES, SCORE_RULES, categoryById, type CategoryId } from '../data/catalog';
+import { CATEGORIES, SCORE_RULES, type CategoryId } from '../data/catalog';
 import { MedalCelebration, type Celebration } from './MedalCelebration';
 import { load, onStorageChange, type HistoryEntry, type StoreData } from '../lib/storage';
-import { MEDAL_NAMES, bestFor, formatTarget, medalLevel, nextMedal, ruleFor, type MedalLevel } from '../lib/medals';
+import { MEDAL_NAMES, bestFor, formatGap, formatTarget, medalLevel, nextMedal, ruleForGame, rulesForLane, type MedalLevel } from '../lib/medals';
 import { prettyVariant } from '../lib/format';
 import './progress.css';
 
@@ -40,12 +40,13 @@ function useStore(): StoreData | null {
 
 export default function ProgressPanel({ gameId, cat, lane }: { gameId: string; cat: CategoryId; lane: number }) {
   const data = useStore();
-  const rule = ruleFor(cat);
-  const catName = categoryById(cat).name;
+  // Every game has its own medal rule; pages that share a score (e.g. the geography quizzes) share it.
+  const rule = ruleForGame(gameId) ?? rulesForLane(cat)[0];
+  const gameName = rule.name;
   const medalScore = data ? bestFor(rule, data.bests) : null;
   const level = medalLevel(rule, medalScore);
 
-  // Celebrate when the lane medal goes up while the page is open (i.e. right after a result).
+  // Celebrate when this game's medal goes up while the page is open (i.e. right after a result).
   const prevLevel = useRef<MedalLevel | null>(null);
   const [party, setParty] = useState<Celebration | null>(null);
   useEffect(() => {
@@ -58,7 +59,7 @@ export default function ProgressPanel({ gameId, cat, lane }: { gameId: string; c
       level,
       from,
       lane,
-      laneName: catName,
+      laneName: gameName,
       scoreText: formatTarget(rule, medalScore),
       nextText: level < 3 ? formatTarget(rule, rule.tiers[level as 1 | 2]) : null,
       nextLane: { name: nextCat.name, url: nextCat.url },
@@ -70,7 +71,7 @@ export default function ProgressPanel({ gameId, cat, lane }: { gameId: string; c
   return (
     <section class="progress-panel" data-cat={cat} aria-labelledby="progress-title">
       <h2 id="progress-title">Your progress</h2>
-      <div class="medals" aria-label={`Lane ${lane} medals`}>
+      <div class="medals" aria-label={`${gameName} medals`}>
         <div class="medal-row">
           {([1, 2, 3] as const).map((tier) => (
             <div class={`medal ${level >= tier ? 'won' : ''}`} key={tier}>
@@ -87,16 +88,11 @@ export default function ProgressPanel({ gameId, cat, lane }: { gameId: string; c
           {!data
             ? ''
             : next === null
-              ? `Gold won in ${catName}. Keep pushing your personal best. `
+              ? `Gold won in ${gameName}. Keep pushing your personal best. `
               : next.gap === null
-                ? `Play to start earning ${catName} medals. `
-                : `${MEDAL_NAMES[next.level]} is ${formatTarget(rule, Math.round(next.gap * 10) / 10)} away (you're at ${formatTarget(rule, medalScore!)}). `}
+                ? `Play to start earning ${gameName} medals. `
+                : `${MEDAL_NAMES[next.level]} is ${formatGap(rule, next.gap)} away (you're at ${formatTarget(rule, medalScore!)}). `}
           Medals count {rule.counts}.
-          {rule.gameId !== gameId && (
-            <>
-              {' '}They're earned in <a href={rule.url}>{SCORE_RULES[rule.gameId]?.label}</a>.
-            </>
-          )}
         </p>
       </div>
 

@@ -1,16 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { MEDAL_RULES, allMedals, bestFor, medalLevel, nextMedal, ruleFor } from '../src/lib/medals';
+import { MEDAL_RULES, TOTAL_MEDALS, allMedals, bestFor, formatGap, formatTarget, laneMedals, medalLevel, nextMedal, ruleForGame } from '../src/lib/medals';
 import { deckOrder, mergeTallies, talliesFromAnswers, updateShortcutDeck, weakestKeys, weakestOps } from '../src/lib/weakspots';
 import { generateWeakWords } from '../src/games/typing/engine';
 import { niceStep } from '../src/components/Progress';
 import { seededRng } from '../src/lib/random';
-import { CATEGORIES } from '../src/data/catalog';
+import { CATEGORIES, GAMES } from '../src/data/catalog';
 
 const rec = (score: number) => ({ score, display: String(score), date: '2026-11-27T00:00:00Z' });
 
 describe('lane medals', () => {
-  it('has one rule per lane with tiers in the right order', () => {
-    expect(MEDAL_RULES.map((r) => r.cat).sort()).toEqual(CATEGORIES.map((c) => c.id).sort());
+  it('gives every game its own rule, with tiers in the right order', () => {
+    const gameIds = [...new Set(GAMES.map((g) => g.gameId))].sort();
+    expect(MEDAL_RULES.map((r) => r.gameId).sort()).toEqual(gameIds);
+    expect(TOTAL_MEDALS).toBe(gameIds.length * 3);
+    for (const c of CATEGORIES) expect(MEDAL_RULES.some((r) => r.cat === c.id)).toBe(true);
+    for (const g of GAMES) expect(ruleForGame(g.gameId)?.cat).toBe(g.category);
     for (const r of MEDAL_RULES) {
       const [b, s, g] = r.tiers;
       if (r.better === 'higher') expect(b < s && s < g).toBe(true);
@@ -19,18 +23,18 @@ describe('lane medals', () => {
   });
 
   it('only counts qualifying results', () => {
-    const typing = ruleFor('typing');
+    const typing = ruleForGame('typing')!;
     const bests = { 'typing|30s · intermediate': rec(55), 'typing|30s · weak keys': rec(90), 'typing-code|30s': rec(99) };
     expect(bestFor(typing, bests)).toBe(55);
     expect(medalLevel(typing, 55)).toBe(1);
-    const math = ruleFor('math');
+    const math = ruleForGame('math')!;
     expect(bestFor(math, { 'math|easy · 20 questions · + −': rec(20), 'math|hard · 60s sprint · ×': rec(26) })).toBe(26);
-    const geo = ruleFor('geography');
+    const geo = ruleForGame('geography')!;
     expect(bestFor(geo, { 'geography|Flags · easy · 10 questions': rec(10), 'geography|Map · hard · 10 questions': rec(8) })).toBe(8);
   });
 
   it('handles lower-is-better lanes', () => {
-    const r = ruleFor('reaction');
+    const r = ruleForGame('reaction')!;
     expect(medalLevel(r, 320)).toBe(0);
     expect(medalLevel(r, 300)).toBe(1);
     expect(medalLevel(r, 240)).toBe(2);
@@ -40,11 +44,47 @@ describe('lane medals', () => {
   });
 
   it('reports the next target and stops at gold', () => {
-    const t = ruleFor('typing');
+    const t = ruleForGame('typing')!;
     expect(nextMedal(t, null)).toEqual({ level: 1, target: 40, gap: null });
     expect(nextMedal(t, 52)).toEqual({ level: 2, target: 60, gap: 8 });
     expect(nextMedal(t, 85)).toBeNull();
     expect(allMedals({}).typing).toBe(0);
+  });
+
+  it('awards medals in the five games that share a lane', () => {
+    const bests = {
+      'typing-code|30s': rec(42),
+      'number-memory|classic': rec(9),
+      'memory-grid|classic': rec(11),
+      'spelling|missing letters · hard · typing · 10 questions': rec(9),
+      'spelling|correct spelling · easy · multiple choice · 10 questions': rec(10),
+      'color|Mixed · medium · 10 questions': rec(7),
+      'color|Mixed · hard · 60s': rec(30),
+    };
+    const m = allMedals(bests);
+    expect(m['typing-code']).toBe(2);
+    expect(m['number-memory']).toBe(2);
+    expect(m['memory-grid']).toBe(3);
+    expect(m.spelling).toBe(2); // the easy 10/10 does not count
+    expect(m.color).toBe(1); // timed rounds do not count
+    // A lane shows the best medal of any of its games.
+    const lanes = laneMedals(bests);
+    expect(lanes.memory).toBe(3);
+    expect(lanes.typing).toBe(2);
+  });
+
+  it('words targets and gaps naturally', () => {
+    const seq = ruleForGame('sequence-memory')!;
+    expect(formatTarget(seq, 7)).toBe('level 7');
+    expect(formatGap(seq, 2)).toBe('2 levels');
+    expect(formatGap(seq, 1)).toBe('1 level');
+    const num = ruleForGame('number-memory')!;
+    expect(formatTarget(num, 1)).toBe('1 digit');
+    expect(formatGap(num, 3)).toBe('3 digits');
+    expect(formatGap(ruleForGame('vocabulary')!, 1)).toBe('1 point');
+    expect(formatTarget(ruleForGame('vocabulary')!, 9)).toBe('9/10');
+    expect(formatGap(ruleForGame('color-match')!, 4.5)).toBe('4.5 percentage points');
+    expect(formatGap(ruleForGame('typing')!, 8)).toBe('8 WPM');
   });
 });
 

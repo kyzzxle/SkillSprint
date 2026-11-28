@@ -6,7 +6,7 @@ import { iconSvg } from '../data/icons';
 import { localDateKey, formatDateKey, timeAgo } from '../lib/date';
 import { dailyStreak, load, onStorageChange, type StoreData } from '../lib/storage';
 import { prettyVariant } from '../lib/format';
-import { allMedals } from '../lib/medals';
+import { allMedals, TOTAL_MEDALS } from '../lib/medals';
 import { EmptyState } from './ui';
 
 function useStore(): StoreData | null {
@@ -124,7 +124,7 @@ export function SeasonBoard() {
         const count = (l: number) => levels.filter((x) => x >= l).length;
         return (
           <p class="season-medals" aria-label="Medals won">
-            <strong>{count(1) + count(2) + count(3)} of 30 medals</strong>
+            <strong>{count(1) + count(2) + count(3)} of {TOTAL_MEDALS} medals</strong>
             <span><i style={{ background: '#e2ad16' }} /> {count(3)} gold</span>
             <span><i style={{ background: '#9aa4b7' }} /> {count(2)} silver</span>
             <span><i style={{ background: '#b06d36' }} /> {count(1)} bronze</span>

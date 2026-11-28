@@ -146,7 +146,7 @@ export function MedalCelebration({ c, onClose }: { c: Celebration; onClose: () =
           {unlocked.length > 1
             ? `${unlocked.slice(0, -1).join(', ')} and ${unlocked[unlocked.length - 1]} unlocked in one go with ${c.scoreText}.`
             : `You earned it with ${c.scoreText}.`}{' '}
-          {c.nextText ? `Next up: ${MEDAL_NAMES[(tier + 1) as 2 | 3]} at ${c.nextText}.` : 'That’s the top medal in this lane.'}
+          {c.nextText ? `Next up: ${MEDAL_NAMES[(tier + 1) as 2 | 3]} at ${c.nextText}.` : 'That’s the top medal for this game.'}
         </p>
         <div class="celebration-track" role="img" aria-label={`${c.level} of 3 medals won in this lane`}>
           {([1, 2, 3] as const).map((t) => (

@@ -91,7 +91,7 @@ const lanes = CATEGORIES.map((c, i) => ({
 <script>
   import { load } from '../lib/storage';
   import { SCORE_RULES } from '../data/catalog';
-  import { allMedals, MEDAL_NAMES } from '../lib/medals';
+  import { laneMedals, MEDAL_NAMES } from '../lib/medals';
 
   // Fill each lane with the visitor's personal best from local storage.
   const data = load();
@@ -114,12 +114,16 @@ const lanes = CATEGORIES.map((c, i) => ({
       el.append(flag, value);
     }
   });
-  // Medals earned in each lane: three dots (bronze, silver, gold), filled when won.
-  const medals = allMedals(data.bests);
+  // Best medal won by any game in each lane: three dots (bronze, silver, gold), filled when won.
+  const medals = laneMedals(data.bests);
   document.querySelectorAll<HTMLElement>('.lane[data-cat]').forEach((lane) => {
     const level = medals[lane.dataset.cat as keyof typeof medals];
     const pb = lane.querySelector('.lane-pb');
-    if (!pb || level === undefined || !pb.querySelector('.pb-flag')) return;
+    if (!pb || level === undefined) return;
+    const hasPb = !!pb.querySelector('.pb-flag');
+    if (!hasPb && level === 0) return;
+    // A medal can come from another game in the lane before the main game has a PB.
+    if (!hasPb) pb.querySelector('.pb-none')!.textContent = 'Medal won';
     const wrap = document.createElement('span');
     wrap.className = 'lane-medals';
     wrap.setAttribute('aria-label', level ? `${MEDAL_NAMES[level]} medal` : 'No medal yet');
