@@ -169,6 +169,7 @@ export function resetAll(): void {
   try {
     localStorage.removeItem(KEY);
     localStorage.removeItem(WEAK_KEY);
+    localStorage.removeItem('skillsprint:ghost:v1');
   } catch {
     /* ignore */
   }

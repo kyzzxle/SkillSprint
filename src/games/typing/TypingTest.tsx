@@ -8,11 +8,20 @@ import { Icon, ResultsPanel, Segmented, PersonalBest, StatInline } from '../../c
 import { useBest, useCountdown, usePrefs, isTypingTarget } from '../../components/ui/hooks';
 import { computeCodeStats, computeStats, generateWeakWords, generateWords, isTrackedKey, type Difficulty, type TypingStats, type WordResult } from './engine';
 import { loadWeak, mergeTallies, saveWeak, weakestKeys, type Ranked, type Tally } from '../../lib/weakspots';
+import { ghostCharsAt, ghostFromSamples, loadGhost, positionFor, saveGhost, type Ghost } from '../../lib/ghost';
+import { sfx } from '../../lib/sound';
 
 type Mode = 'words' | 'code' | 'weak';
 type Phase = 'ready' | 'running' | 'done';
 
-const DEFAULTS = { duration: 30, difficulty: 'intermediate' as Difficulty, punctuation: false, numbers: false, mode: 'words' as Mode };
+const DEFAULTS = { duration: 30, difficulty: 'intermediate' as Difficulty, punctuation: false, numbers: false, mode: 'words' as Mode, ghost: true };
+
+/** Outcome of racing your ghost, shown on the results screen. */
+interface GhostRace {
+  raced: boolean;
+  ghostWpm: number | null;
+  saved: boolean;
+}
 
 export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
   const lockedMode = preset?.mode;
@@ -32,7 +41,14 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
   const [, force] = useState(0);
   const rerender = () => force((x) => x + 1);
   const [focused, setFocused] = useState(false);
-  const [final, setFinal] = useState<{ stats: TypingStats; history: Sample[]; outcome: RecordOutcome; elapsed: number; weak: Ranked[] } | null>(null);
+  const [final, setFinal] = useState<{ stats: TypingStats; history: Sample[]; outcome: RecordOutcome; elapsed: number; weak: Ranked[]; race: GhostRace } | null>(null);
+  // Ghost racer: your best run for these exact settings, replayed as a second caret.
+  const ghostKey = `${gameId}|${variant}`;
+  const [ghost, setGhost] = useState<Ghost | null>(null);
+  useEffect(() => setGhost(wordsLike ? loadGhost(ghostKey) : null), [ghostKey, seed, wordsLike]);
+  const ghostOn = wordsLike && prefs.ghost && ghost !== null;
+  const ghostCaretRef = useRef<HTMLDivElement>(null);
+  const leadSign = useRef(0);
   // Keys this player mistypes most (from earlier tests), used by the weak-keys drill.
   const [weakList, setWeakList] = useState<Ranked[]>([]);
   useEffect(() => setWeakList(weakestKeys(loadWeak().keys)), []);
@@ -134,7 +150,13 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
     saveWeak(weakData);
     const weak = weakestKeys(weakData.keys);
     setWeakList(weak);
-    setFinal({ stats: s, history: history.current.slice(), outcome, elapsed, weak });
+    // Race result, and keep this run as the ghost if it is the fastest so far for these settings.
+    const race: GhostRace = { raced: ghostOn, ghostWpm: ghost?.wpm ?? null, saved: false };
+    if (wordsLike && history.current.length >= 2 && (!ghost || wpm > ghost.wpm)) {
+      saveGhost(ghostKey, ghostFromSamples(history.current, wpm));
+      race.saved = true;
+    }
+    setFinal({ stats: s, history: history.current.slice(), outcome, elapsed, weak, race });
     setBestVersion((v) => v + 1);
     setPhase('done');
     inputRef.current?.blur();
@@ -342,6 +364,26 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
     const left = el.offsetLeft + (after ? el.offsetWidth : 0);
     caret.style.transform = `translate(${left}px, ${el.offsetTop}px)`;
     caret.style.height = `${el.offsetHeight}px`;
+
+    // Ghost caret: where your best run had got to at this moment.
+    const gc = ghostCaretRef.current;
+    if (!gc) return;
+    if (!ghostOn || !wordsLike) {
+      gc.style.opacity = '0';
+      return;
+    }
+    const pos = positionFor(words.current, ghostCharsAt(ghost!.points, elapsedMs()));
+    const gWord = box.querySelector<HTMLElement>(`[data-i="${pos.word}"]`);
+    if (!gWord) {
+      gc.style.opacity = '0'; // the ghost is on a line that has scrolled away or is not shown yet
+      return;
+    }
+    const gLetters = gWord.querySelectorAll<HTMLElement>('.l');
+    const gEl = gLetters[pos.letter] ?? gLetters[gLetters.length - 1] ?? gWord;
+    const gLeft = gEl.offsetLeft + (pos.letter >= gLetters.length ? gEl.offsetWidth : 0);
+    gc.style.opacity = '1';
+    gc.style.transform = `translate(${gLeft}px, ${gEl.offsetTop}px)`;
+    gc.style.height = `${gEl.offsetHeight}px`;
   });
 
   // ---------- Render ----------
@@ -365,6 +407,7 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
         onRestart={() => setSeed((x) => x + 1)}
         restartLabel="Next test"
       >
+        <GhostResult race={final.race} wpm={Math.round(s.wpm)} />
         <TypingChart samples={final.history} />
         <WeakKeysPanel
           weak={final.weak}
@@ -375,6 +418,16 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
   }
 
   const live = phase === 'running' ? stats(elapsedMs()) : null;
+  // Lead over the ghost in words (5 characters), using the same measure as WPM.
+  let lead: number | null = null;
+  if (ghostOn && live) {
+    const ms = elapsedMs();
+    const mine = (live.wpm * 5 * ms) / 60000;
+    lead = (mine - ghostCharsAt(ghost!.points, ms)) / 5;
+    const sign = lead > 0.4 ? 1 : lead < -0.4 ? -1 : leadSign.current;
+    if (ms > 2500 && sign === 1 && leadSign.current === -1) sfx.blip(6); // you just overtook your ghost
+    leadSign.current = sign;
+  } else if (phase !== 'running') leadSign.current = 0;
   const secs = Math.ceil(remaining / 1000);
 
   return (
@@ -385,6 +438,19 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
         )}
         <Segmented label="Duration" hideLabel value={prefs.duration} onChange={(v) => setPrefs({ duration: v })}
           options={[15, 30, 60, 120].map((d) => ({ value: d, label: `${d}s` }))} />
+        {wordsLike && (
+          <div class="segmented" role="group" aria-label="Ghost racer">
+            <button
+              type="button"
+              aria-pressed={ghostOn}
+              disabled={!ghost}
+              title={ghost ? `Race your best run for these settings (${ghost.wpm} WPM)` : 'Finish a test with these settings to create your ghost'}
+              onClick={() => setPrefs({ ghost: !prefs.ghost })}
+            >
+              Ghost {ghost ? `${ghost.wpm} WPM` : '(none yet)'}
+            </button>
+          </div>
+        )}
         {mode === 'words' && (
           <>
             <Segmented label="Difficulty" hideLabel value={prefs.difficulty} onChange={(v) => setPrefs({ difficulty: v })}
@@ -406,6 +472,12 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
         <StatInline k="WPM" v={live ? Math.round(live.wpm) : '—'} />
         <StatInline k="Accuracy" v={live ? `${Math.round(live.accuracy)}%` : '—'} />
         {mode === 'code' && <StatInline k="Language" v={currentLang(code.starts, typedCode.current.length)} />}
+        {ghostOn && (
+          <div class={`stat-inline ghost-lead ${lead === null ? '' : lead >= 0 ? 'ahead' : 'behind'}`} aria-label="Lead over your ghost, in words">
+            <span class="k">vs ghost</span>
+            <span class="v">{lead === null ? `${ghost!.wpm} WPM` : `${lead >= 0 ? '+' : '−'}${Math.abs(lead).toFixed(1)}`}</span>
+          </div>
+        )}
       </div>
 
       {mode === 'weak' && (
@@ -445,6 +517,7 @@ export default function TypingTest({ preset }: { preset?: { mode?: Mode } }) {
           onBlur={() => setFocused(false)}
         />
         <div class="caret" ref={caretRef} aria-hidden="true" data-idle={phase !== 'running'} />
+        <div class="ghost-caret" ref={ghostCaretRef} aria-hidden="true"><span>Ghost</span></div>
         {wordsLike ? (
           <WordsView words={words.current} committed={committed.current} current={current.current} from={firstVisible} />
         ) : (
@@ -586,5 +659,29 @@ function WeakKeysPanel({ weak, onPractise }: { weak: Ranked[]; onPractise?: () =
         <a class="btn btn-secondary" href="/typing/">Practise these keys in the typing test</a>
       )}
     </section>
+  );
+}
+
+/** Results line for the ghost race. */
+function GhostResult({ race, wpm }: { race: GhostRace; wpm: number }) {
+  if (!race.raced && !race.saved) return null;
+  const g = race.ghostWpm;
+  let text: string;
+  let cls = '';
+  if (race.raced && g !== null) {
+    if (wpm > g) {
+      text = `You beat your ghost (${g} WPM) by ${wpm - g} WPM.`;
+      cls = 'won';
+    } else if (wpm === g) text = `Dead heat with your ghost at ${g} WPM.`;
+    else {
+      text = `Your ghost (${g} WPM) won by ${g - wpm} WPM. Race it again?`;
+      cls = 'lost';
+    }
+  } else text = 'This run is now your ghost. Next time, race against it.';
+  return (
+    <p class={`ghost-result ${cls}`} role="status">
+      <span class="ghost-dot" aria-hidden="true" /> {text}
+      {race.saved && race.raced ? ' It replaces your old ghost.' : ''}
+    </p>
   );
 }
